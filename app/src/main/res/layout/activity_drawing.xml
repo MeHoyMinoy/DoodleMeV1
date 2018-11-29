@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".Drawing">
+
+
+    <com.example.apio9009.doodlemev1.CanvasView
+        android:id="@+id/canvas"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        app:layout_constraintBottom_toTopOf="@+id/imageButton14"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/blackButton"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setBlack"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/blueButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/blackcolor" />
+
+    <ImageButton
+        android:id="@+id/blueButton"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setBlue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton12"
+        app:layout_constraintStart_toEndOf="@+id/blackButton"
+        app:srcCompat="@drawable/bluecolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton12"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setBrown"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton13"
+        app:layout_constraintStart_toEndOf="@+id/blueButton"
+        app:srcCompat="@drawable/browncolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton13"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setGreen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton14"
+        app:layout_constraintStart_toEndOf="@+id/imageButton12"
+        app:srcCompat="@drawable/greencolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton14"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setGrey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton15"
+        app:layout_constraintStart_toEndOf="@+id/imageButton13"
+        app:srcCompat="@drawable/greycolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton15"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setOrange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton16"
+        app:layout_constraintStart_toEndOf="@+id/imageButton14"
+        app:srcCompat="@drawable/orangecolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton16"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setPurple"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton17"
+        app:layout_constraintStart_toEndOf="@+id/imageButton15"
+        app:srcCompat="@drawable/purpcolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton17"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setRed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton18"
+        app:layout_constraintStart_toEndOf="@+id/imageButton16"
+        app:srcCompat="@drawable/redcolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton18"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="1dp"
+        android:onClick="setYellow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageButton17"
+        app:srcCompat="@drawable/yellowcolor" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginRight="2dp"
+        android:background="#0000"
+        android:onClick="send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/done" />
+
+</android.support.constraint.ConstraintLayout>
