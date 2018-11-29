@@ -3,10 +3,22 @@ package com.example.apio9009.doodlemev1;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -49,6 +61,35 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void validate(String userName, String userPassword) {
+        try {
+            URL url = new URL("localhost:8080/Login");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+            conn.setRequestProperty("Accept","application/json");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+
+            JSONObject loginQuery = new JSONObject();
+            loginQuery.put("userName", userName);
+            loginQuery.put("password", userPassword);
+
+            Log.i("JSON", loginQuery.toString());
+            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+            //os.writeBytes(URLEncoder.encode(jsonParam.toString(), "UTF-8"));
+            os.writeBytes(loginQuery.toString());
+
+            os.flush();
+            os.close();
+
+            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+            Log.i("MSG" , conn.getResponseMessage());
+
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         if ( (userName.equals("Admin")) && (userPassword.equals("1234")) ) {
             Intent intent = new Intent(LoginActivity.this, HomePage.class);
