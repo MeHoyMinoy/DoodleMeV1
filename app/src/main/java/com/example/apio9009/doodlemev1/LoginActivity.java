@@ -77,10 +77,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void validate(String userName, String userPassword) {
-
+        serverResult = null;
         new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
         while(serverResult == null);
-        if (!serverResult.equals("0")||!serverResult.equals("-1")) {
+        if (serverResult != "0"||serverResult != "-1") {
             Intent intent = new Intent(LoginActivity.this, HomePage.class);
             //intent is used to go from one activity to another like a source and a destination
             startActivity(intent);

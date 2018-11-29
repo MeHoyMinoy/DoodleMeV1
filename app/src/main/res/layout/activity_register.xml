@@ -42,12 +42,12 @@
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="24dp"
-        android:text="Answer:"
+        android:text="Last Name:"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="18sp"
         android:typeface="normal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setQuestion" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <TextView
         android:id="@+id/textView7"
@@ -76,7 +76,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:onClick="validate"
-        app:layout_constraintTop_toBottomOf="@+id/setAnswer" />
+        app:layout_constraintTop_toBottomOf="@+id/setLastName" />
 
     <EditText
         android:id="@+id/setPass"
@@ -118,60 +118,67 @@
         app:layout_constraintTop_toBottomOf="@+id/setPass" />
 
     <EditText
-        android:id="@+id/setQuestion"
-        android:layout_width="343dp"
+        android:id="@+id/setFirstName"
+        android:layout_width="214dp"
         android:layout_height="49dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginRight="44dp"
+        android:layout_marginStart="172dp"
+        android:layout_marginLeft="172dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
         android:ems="10"
-        android:hint="What is your favorite animal?"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/setBirth" />
 
     <EditText
-        android:id="@+id/setAnswer"
-        android:layout_width="343dp"
+        android:id="@+id/setLastName"
+        android:layout_width="214dp"
         android:layout_height="49dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginRight="44dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
         android:ems="10"
-        android:hint="Dog"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+        app:layout_constraintTop_toBottomOf="@+id/setFirstName" />
 
     <TextView
         android:id="@+id/warning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="203dp"
+        android:layout_marginLeft="203dp"
         android:layout_marginTop="24dp"
+        android:layout_marginEnd="208dp"
+        android:layout_marginRight="208dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/confirmB"
-        app:layout_constraintVertical_bias="0.666"
-        tools:layout_editor_absoluteX="203dp" />
+        app:layout_constraintVertical_bias="0.666" />
 
     <TextView
         android:id="@+id/textView4"
-        android:layout_width="159dp"
+        android:layout_width="94dp"
         android:layout_height="28dp"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="32dp"
-        android:text="Security Question:"
+        android:text="First Name:"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="18sp"
         android:typeface="normal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+    <TextView
+        android:id="@+id/connectText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

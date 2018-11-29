@@ -1,21 +1,42 @@
 package com.example.apio9009.doodlemev1;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Register extends AppCompatActivity {
 
     private EditText username;
     private EditText password;
     private EditText birthdate;
-    private EditText question;
-    private EditText answer;
+    private EditText firstName;
+    private EditText lastName;
     private TextView message;
+    InputStream inputStream;
+    HttpURLConnection conn;
+    private String serverResult;
     public String Fakeuser = "Username";                //used in if statement to compare with other usernames in the database so two cannot be the same
     public String slash = "/";
     Bundle bundle = new Bundle();                                                                   //Create the bundle
@@ -28,8 +49,8 @@ public class Register extends AppCompatActivity {
         username = findViewById(R.id.setUsername);
         password = findViewById(R.id.setPass);
         birthdate = findViewById(R.id.setBirth);
-        question =(EditText)findViewById(R.id.setQuestion);
-        answer =(EditText)findViewById(R.id.setAnswer);
+        firstName =(EditText)findViewById(R.id.setFirstName);
+        lastName =(EditText)findViewById(R.id.setLastName);
         message = (TextView)findViewById(R.id.warning);
     }
 
@@ -37,14 +58,11 @@ public class Register extends AppCompatActivity {
         String userName = username.getText().toString();
         String userPassword = password.getText().toString();
         String bDate = birthdate.getText().toString();
-        String quest = question.getText().toString();
-        String ans = answer.getText().toString();
+        String fName = firstName.getText().toString();
+        String lName = lastName.getText().toString();
 
         if (userName == null || userName.length() < 3 || userName.length() > 14) {
             message.setText("Invalid Length.  Username must be between 3 to 14 characters.  ");
-        }
-        else if (userName == Fakeuser){                                                                 //Replace fakeuser with a list of all pre exisiting usernames
-            message.setText("Username is already taken.");
         }
         else if (userPassword == null || userPassword.length() < 3 || userPassword.length() > 14){
             message.setText("Invalid Length.  Username must be between 3 to 14 characters.  ");
@@ -55,24 +73,30 @@ public class Register extends AppCompatActivity {
         /*else if (  !(bDate.substring(0,1).matches("[0-9]+")) || !(bDate.substring(2,2) == slash) || !(bDate.substring(3,4).matches("[0-9]+")) || !(bDate.substring(5,5) == slash) || !(bDate.substring(6,9).matches("[0-9]+"))   ){                                                 //if the birthdate has anything but a number it alerts the user
             message.setText("Invalid Format.  Please use only numbers for your birthdate with slashes inbetween");
         }*/
-        else if (quest.length() > 30){
-            message.setText("Invalid Length.  Question should be less than 30 characters.  ");
+        else if (fName.length() > 30){
+            message.setText("Invalid Length.  First name should be less than 30 characters.  ");
 
         }
-        else if (ans.length() > 20){
-            message.setText("Invalid Length.  Answer should be less than 20 characters.  ");
+        else if (lName.length() > 30){
+            message.setText("Invalid Length.  Last name should be less than 20 characters.  ");
         }
         else {
-
-            //create bundle-----------------------------------------------------------------------\\
-            Intent i = new Intent(Register.this, HomePage.class);
-            String[] fList;
-            String userID = username.toString();
-            bundle.putString("UserID", userID);
-            //Add the bundle to the intent
-            i.putExtras(bundle);
-            startActivity(i);
-            //end bundle--------------------------------------------------------------------------//
+            serverResult = null;
+            new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreateProfile");
+            while(serverResult == null);
+            if (serverResult.equals("-1")){
+                message.setText("That username is already taken.");
+            }else if (serverResult.equals("1")) {
+                //create bundle-----------------------------------------------------------------------\\
+                Intent i = new Intent(Register.this, HomePage.class);
+                String[] fList;
+                String userID = username.toString();
+                bundle.putString("UserID", userID);
+                //Add the bundle to the intent
+                i.putExtras(bundle);
+                startActivity(i);
+                //end bundle--------------------------------------------------------------------------//
+            }
 
           }
 
@@ -80,6 +104,125 @@ public class Register extends AppCompatActivity {
 
         }
 
+    public boolean checkNetworkConnection() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        boolean isConnected = false;
+        if (networkInfo != null && (isConnected = networkInfo.isConnected())) {
+            // show "Connected" & type of network "WIFI or MOBILE"
+            message.setText("Connected "+networkInfo.getTypeName());
+            // change background color to red
+            message.setTextColor(0xFF7CCC26);
+
+
+        } else {
+            // show "Not Connected"
+            message.setText("Not Connected");
+            // change background color to green
+            message.setTextColor(0xFFFF0000);
+        }
+
+        return isConnected;
+    }
+
+
+    //SERVE COMMUNICATION
+    private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            // params comes from the execute() call: params[0] is the url.
+            try {
+                try {
+                    return HttpPost(urls[0]);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return "Error!";
+                }
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            //conResult.setText(result);
+        }
+    }
+
+    private String HttpPost(String myUrl) throws IOException, JSONException {
+        String result = "";
+
+        URL url = new URL(myUrl);
+
+        // 1. create HttpURLConnection
+        //HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+
+        // 2. build JSON object
+        JSONObject jsonObject = buildJsonObject();
+
+        // 3. add JSON content to POST request body
+        setPostRequestContent(conn, jsonObject);
+
+        // 4. make POST request to the given URL
+        conn.connect();
+
+        // 5. return response message
+        return conn.getResponseMessage()+"";
+
+    }
+
+    private JSONObject buildJsonObject() throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.accumulate("username", username.getText().toString());
+        jsonObject.accumulate("password", password.getText().toString());
+        jsonObject.accumulate("firstName", firstName.getText().toString());
+        jsonObject.accumulate("lastName", lastName.getText().toString());
+        jsonObject.accumulate("birthDate", birthdate.getText().toString());
+
+        return jsonObject;
+    }
+    private void setPostRequestContent(HttpURLConnection conn,
+                                       JSONObject jsonObject) throws IOException {
+
+        OutputStream os = conn.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+        writer.write(jsonObject.toString());
+        Log.i(LoginActivity.class.toString(), jsonObject.toString());
+        writer.flush();
+        writer.close();
+        os.close();
+
+        inputStream = new BufferedInputStream(conn.getInputStream());
+        serverResult = convertStreamToString(inputStream);
+    }
+
+    public String convertStreamToString(InputStream is) {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append((line + "\n"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
+//END SERVER COMMUNICATION
     }
 
