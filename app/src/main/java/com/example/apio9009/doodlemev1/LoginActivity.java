@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -42,6 +44,8 @@ public class LoginActivity extends AppCompatActivity {
         HttpURLConnection conn;
         private String serverResult;
         private int counter = 5;
+        private HTTPAsyncTask mTask;
+        CountDownLatch latch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +82,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private void validate(String userName, String userPassword) {
         serverResult = null;
-        new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
-        while(serverResult == null);
-        if (serverResult != "0"||serverResult != "-1") {
+        latch = new CountDownLatch(1);
+        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
+        waitForResponse();
+        mTask.cancel(true);
+        if(serverResult == null){
+
+        }else
+        if (serverResult.equals("1")) {
             Intent intent = new Intent(LoginActivity.this, HomePage.class);
             //intent is used to go from one activity to another like a source and a destination
             startActivity(intent);
@@ -97,6 +106,19 @@ public class LoginActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    public void waitForResponse() {
+        try {
+            boolean result = latch.await(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // check result and react correspondingly
+    }
+
+    public void notifyOKCommandReceived() {
+        latch.countDown();
     }
 
     public boolean checkNetworkConnection() {
@@ -174,7 +196,7 @@ public class LoginActivity extends AppCompatActivity {
     private JSONObject buildJsonObject() throws JSONException {
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.accumulate("userName", name.getText().toString());
+        jsonObject.accumulate("username", name.getText().toString());
         jsonObject.accumulate("password", password.getText().toString());
 
         return jsonObject;
@@ -202,7 +224,7 @@ public class LoginActivity extends AppCompatActivity {
         String line = null;
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append((line + "\n"));
+                sb.append((line));
             }
         } catch (IOException e) {
             e.printStackTrace();

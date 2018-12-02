@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class Register extends AppCompatActivity {
 
@@ -40,6 +42,7 @@ public class Register extends AppCompatActivity {
     public String Fakeuser = "Username";                //used in if statement to compare with other usernames in the database so two cannot be the same
     public String slash = "/";
     Bundle bundle = new Bundle();                                                                   //Create the bundle
+    CountDownLatch latch;
 
 
     @Override
@@ -49,9 +52,9 @@ public class Register extends AppCompatActivity {
         username = findViewById(R.id.setUsername);
         password = findViewById(R.id.setPass);
         birthdate = findViewById(R.id.setBirth);
-        firstName =(EditText)findViewById(R.id.setFirstName);
-        lastName =(EditText)findViewById(R.id.setLastName);
-        message = (TextView)findViewById(R.id.warning);
+        firstName = (EditText) findViewById(R.id.setFirstName);
+        lastName = (EditText) findViewById(R.id.setLastName);
+        message = (TextView) findViewById(R.id.warning);
     }
 
     public void validate(View V) {
@@ -63,30 +66,26 @@ public class Register extends AppCompatActivity {
 
         if (userName == null || userName.length() < 3 || userName.length() > 14) {
             message.setText("Invalid Length.  Username must be between 3 to 14 characters.  ");
-        }
-        else if (userPassword == null || userPassword.length() < 3 || userPassword.length() > 14){
+        } else if (userPassword == null || userPassword.length() < 3 || userPassword.length() > 14) {
             message.setText("Invalid Length.  Username must be between 3 to 14 characters.  ");
-        }
-        else if (userName == userPassword){
+        } else if (userName == userPassword) {
             message.setText("Your username cannot be the same as your password.");
         }
         /*else if (  !(bDate.substring(0,1).matches("[0-9]+")) || !(bDate.substring(2,2) == slash) || !(bDate.substring(3,4).matches("[0-9]+")) || !(bDate.substring(5,5) == slash) || !(bDate.substring(6,9).matches("[0-9]+"))   ){                                                 //if the birthdate has anything but a number it alerts the user
             message.setText("Invalid Format.  Please use only numbers for your birthdate with slashes inbetween");
         }*/
-        else if (fName.length() > 30){
+        else if (fName.length() > 30) {
             message.setText("Invalid Length.  First name should be less than 30 characters.  ");
 
-        }
-        else if (lName.length() > 30){
+        } else if (lName.length() > 30) {
             message.setText("Invalid Length.  Last name should be less than 20 characters.  ");
-        }
-        else {
+        } else {
             serverResult = null;
             new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreateProfile");
-            while(serverResult == null);
-            if (serverResult.equals("-1")){
+            waitForResponse();
+            if (serverResult.equals("-1")) {
                 message.setText("That username is already taken.");
-            }else if (serverResult.equals("1")) {
+            } else if (serverResult.equals("1")) {
                 //create bundle-----------------------------------------------------------------------\\
                 Intent i = new Intent(Register.this, HomePage.class);
                 String[] fList;
@@ -98,11 +97,10 @@ public class Register extends AppCompatActivity {
                 //end bundle--------------------------------------------------------------------------//
             }
 
-          }
-
-
-
         }
+
+
+    }
 
     public boolean checkNetworkConnection() {
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -112,7 +110,7 @@ public class Register extends AppCompatActivity {
         boolean isConnected = false;
         if (networkInfo != null && (isConnected = networkInfo.isConnected())) {
             // show "Connected" & type of network "WIFI or MOBILE"
-            message.setText("Connected "+networkInfo.getTypeName());
+            message.setText("Connected " + networkInfo.getTypeName());
             // change background color to red
             message.setTextColor(0xFF7CCC26);
 
@@ -144,6 +142,7 @@ public class Register extends AppCompatActivity {
                 return "Unable to retrieve web page. URL may be invalid.";
             }
         }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
@@ -172,7 +171,7 @@ public class Register extends AppCompatActivity {
         conn.connect();
 
         // 5. return response message
-        return conn.getResponseMessage()+"";
+        return conn.getResponseMessage() + "";
 
     }
 
@@ -187,6 +186,7 @@ public class Register extends AppCompatActivity {
 
         return jsonObject;
     }
+
     private void setPostRequestContent(HttpURLConnection conn,
                                        JSONObject jsonObject) throws IOException {
 
@@ -210,7 +210,7 @@ public class Register extends AppCompatActivity {
         String line = null;
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append((line + "\n"));
+                sb.append((line));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -224,5 +224,18 @@ public class Register extends AppCompatActivity {
         return sb.toString();
     }
 //END SERVER COMMUNICATION
+
+
+    public void waitForResponse() {
+        try {
+            boolean result = latch.await(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // check result and react correspondingly
     }
 
+    public void notifyOKCommandReceived() {
+        latch.countDown();
+    }
+}
