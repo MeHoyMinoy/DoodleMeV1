@@ -46,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         private HTTPAsyncTask mTask;
         private int requestType = 0;
         CountDownLatch latch;
+        Bundle bundle = new Bundle();                                                                   //Create the bundle
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,6 +255,8 @@ public class LoginActivity extends AppCompatActivity {
         mTask.cancel(true);*/
         if(serverResult!=null) {
             Intent intent = new Intent(LoginActivity.this, HomePage.class);
+            bundle.putString("UserID", name.getText().toString());
+            intent.putExtras(bundle);
             //intent is used to go from one activity to another like a source and a destination
             startActivity(intent);
         }else getUserProfile();

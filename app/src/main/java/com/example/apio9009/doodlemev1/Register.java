@@ -92,7 +92,7 @@ public class Register extends AppCompatActivity {
                 //create bundle-----------------------------------------------------------------------\\
                 Intent i = new Intent(Register.this, HomePage.class);
                 String[] fList;
-                String userID = username.toString();
+                String userID = username.getText().toString();
                 bundle.putString("UserID", userID);
                 //Add the bundle to the intent
                 i.putExtras(bundle);

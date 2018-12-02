@@ -21,6 +21,7 @@ public class NewDoodlePage extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {                                            //On create function
         super.onCreate(savedInstanceState);
+        bundle = getIntent().getExtras();
         setContentView(R.layout.activity_newdoodle);
         friendS = findViewById(R.id.friendSearch);
         fList = findViewById(R.id.groupList);

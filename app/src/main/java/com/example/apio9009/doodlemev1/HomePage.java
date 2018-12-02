@@ -14,10 +14,14 @@ import android.content.Intent;
 public class HomePage extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "DoodleMe";
+    Bundle bundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //bundle stuff----------------------------------------------------------------------------\\
         super.onCreate(savedInstanceState);
+        //Get the bundle
+        bundle = getIntent().getExtras();
         setContentView(R.layout.activity_home);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.newdoodle)
@@ -34,7 +38,10 @@ public class HomePage extends AppCompatActivity {
 
     public void NewDoodle(View V){
         //startActivity(new Intent(HomePage.this, NewDoodleForm.class));
-        startActivity(new Intent(HomePage.this, NewDoodlePage.class));
+        Intent intent = new Intent(HomePage.this, NewDoodlePage.class);
+        intent.putExtras(bundle);
+        //intent is used to go from one activity to another like a source and a destination
+        startActivity(intent);
     }
 
     public void goToProfile(View V){

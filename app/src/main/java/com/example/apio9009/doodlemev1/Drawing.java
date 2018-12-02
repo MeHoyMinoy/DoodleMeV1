@@ -27,6 +27,8 @@ public class Drawing extends AppCompatActivity {
     String[] flist;
     Bitmap doodle;
     String doodleEnc;
+    String currentPlayer;
+    int cpSpot = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {                                          //On create function
@@ -36,15 +38,25 @@ public class Drawing extends AppCompatActivity {
         bundle = getIntent().getExtras();
         //Extract the data…
         newDoodle = bundle.getBoolean("newDoodle");
-        if(newDoodle) {
+        stuff = bundle.getString("GroupName");
+        flist = bundle.getStringArray("FriendsList");
+
+        if(!newDoodle) {
             doodleEnc = bundle.getString("encoded");
             byte[] byteArray = Base64.decode(doodleEnc, Base64.DEFAULT);
             doodle = BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+            currentPlayer = bundle.getString("currentPlayer");
+            cpSpot = bundle.getInt("cpSpot");
             canvasView.setDoodle(doodle);
         }
+        if(cpSpot < flist.length-1) {
+            cpSpot++;
+            currentPlayer = flist[cpSpot];
+        }else{
+            cpSpot = 0;
+            currentPlayer = flist[cpSpot];
+        }
 
-        stuff = bundle.getString("GroupName");
-        flist = bundle.getStringArray("FriendsList");
         //end bundle stuff------------------------------------------------------------------------//
 
 
@@ -71,15 +83,14 @@ public class Drawing extends AppCompatActivity {
         image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        System.out.print(encoded);
         JSONObject doodle = new JSONObject();
-        JSONArray gMembers = new JSONArray();
-        for(int i = 0; i < flist.length; i++){
-            gMembers.put(flist[i]);
-        }
         try{
             doodle.put("Doodle", encoded);
-            doodle.put("gMembers", gMembers);
-            doodle.put("gName", flist);
+            doodle.put("gMembers", flist);
+            doodle.put("gName", stuff);
+            doodle.put("currentPlayer", currentPlayer);
+            doodle.put("cpSpot", cpSpot);
         }catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
