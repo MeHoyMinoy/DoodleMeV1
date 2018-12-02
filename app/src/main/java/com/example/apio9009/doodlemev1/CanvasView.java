@@ -94,6 +94,10 @@ public class CanvasView extends View {
         return mBitmap;
     }
 
+    public void setDoodle(Bitmap image){
+        mCanvas.setBitmap(image);
+    }
+
     private void upTouch(){
     mPath.lineTo(mX, mY);
     }

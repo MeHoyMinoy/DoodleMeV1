@@ -43,6 +43,7 @@ public class Register extends AppCompatActivity {
     public String slash = "/";
     Bundle bundle = new Bundle();                                                                   //Create the bundle
     CountDownLatch latch;
+    private HTTPAsyncTask mTask;
 
 
     @Override
@@ -81,8 +82,10 @@ public class Register extends AppCompatActivity {
             message.setText("Invalid Length.  Last name should be less than 20 characters.  ");
         } else {
             serverResult = null;
-            new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreateProfile");
+            latch = new CountDownLatch(1);
+            mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreateProfile");
             waitForResponse();
+            mTask.cancel(true);
             if (serverResult.equals("-1")) {
                 message.setText("That username is already taken.");
             } else if (serverResult.equals("1")) {
@@ -178,7 +181,7 @@ public class Register extends AppCompatActivity {
     private JSONObject buildJsonObject() throws JSONException {
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.accumulate("username", username.getText().toString());
+        jsonObject.accumulate("userName", username.getText().toString());
         jsonObject.accumulate("password", password.getText().toString());
         jsonObject.accumulate("firstName", firstName.getText().toString());
         jsonObject.accumulate("lastName", lastName.getText().toString());

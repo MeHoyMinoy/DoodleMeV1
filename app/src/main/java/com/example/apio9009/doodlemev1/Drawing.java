@@ -1,6 +1,8 @@
 package com.example.apio9009.doodlemev1;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -19,20 +21,28 @@ public class Drawing extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "DoodleMe";
     private CanvasView canvasView;
+    boolean newDoodle;
     Bundle bundle;
     String stuff;
     String[] flist;
+    Bitmap doodle;
+    String doodleEnc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {                                          //On create function
-
-
         //bundle stuff----------------------------------------------------------------------------\\
         super.onCreate(savedInstanceState);
         //Get the bundle
         bundle = getIntent().getExtras();
-
         //Extract the data…
+        newDoodle = bundle.getBoolean("newDoodle");
+        if(newDoodle) {
+            doodleEnc = bundle.getString("encoded");
+            byte[] byteArray = Base64.decode(doodleEnc, Base64.DEFAULT);
+            doodle = BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+            canvasView.setDoodle(doodle);
+        }
+
         stuff = bundle.getString("GroupName");
         flist = bundle.getStringArray("FriendsList");
         //end bundle stuff------------------------------------------------------------------------//
@@ -59,7 +69,7 @@ public class Drawing extends AppCompatActivity {
         Bitmap image = canvasView.getDoodle();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
         JSONObject doodle = new JSONObject();
         JSONArray gMembers = new JSONArray();
@@ -67,13 +77,17 @@ public class Drawing extends AppCompatActivity {
             gMembers.put(flist[i]);
         }
         try{
-            doodle.put("Doodle",encoded);
+            doodle.put("Doodle", encoded);
             doodle.put("gMembers", gMembers);
+            doodle.put("gName", flist);
         }catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         //end json conversion---------------------------------------------------------------------//
+        Intent intent = new Intent(Drawing.this, HomePage.class);
+        //intent is used to go from one activity to another like a source and a destination
+        startActivity(intent);
     }
 
     public void setBlack(View V){
@@ -120,5 +134,10 @@ public class Drawing extends AppCompatActivity {
         int co = Color.MAGENTA;
         canvasView.setColor(co);
     }
+
+
+
+
+
 
 }

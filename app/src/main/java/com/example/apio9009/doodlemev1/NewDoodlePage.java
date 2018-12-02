@@ -38,6 +38,7 @@ public class NewDoodlePage extends AppCompatActivity {
         String[] gArray = gList.toArray(new String[gList.size()]);
         bundle.putString("GroupName", gName);
         bundle.putStringArray("FriendsList",gArray);
+        bundle.putBoolean("newDoodle",true);
         //Add the bundle to the intent
         i.putExtras(bundle);
         startActivity(i);

@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
 
-
         private EditText name;
         private EditText password;
         private TextView info;
@@ -45,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         private String serverResult;
         private int counter = 5;
         private HTTPAsyncTask mTask;
+        private int requestType = 0;
         CountDownLatch latch;
 
     @Override
@@ -81,6 +81,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void validate(String userName, String userPassword) {
+        requestType = 1;
         serverResult = null;
         latch = new CountDownLatch(1);
         mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
@@ -90,9 +91,7 @@ public class LoginActivity extends AppCompatActivity {
 
         }else
         if (serverResult.equals("1")) {
-            Intent intent = new Intent(LoginActivity.this, HomePage.class);
-            //intent is used to go from one activity to another like a source and a destination
-            startActivity(intent);
+            getUserProfile();
         }
         else {
             counter--;
@@ -143,7 +142,6 @@ public class LoginActivity extends AppCompatActivity {
 
         return isConnected;
     }
-
 
     //SERVE COMMUNICATION
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
@@ -196,8 +194,12 @@ public class LoginActivity extends AppCompatActivity {
     private JSONObject buildJsonObject() throws JSONException {
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.accumulate("username", name.getText().toString());
-        jsonObject.accumulate("password", password.getText().toString());
+        if(requestType == 1) {
+            jsonObject.accumulate("username", name.getText().toString());
+            jsonObject.accumulate("password", password.getText().toString());
+        }else if(requestType == 2){
+//            jsonObject.accumulate("user", name.getText().toString());
+        }
 
         return jsonObject;
     }
@@ -222,9 +224,14 @@ public class LoginActivity extends AppCompatActivity {
         StringBuilder sb = new StringBuilder();
 
         String line = null;
+
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append((line));
+                if(requestType == 1) {
+                    sb.append((line));
+                }else if(requestType == 2){
+                    sb.append((line)+"\n");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -237,5 +244,22 @@ public class LoginActivity extends AppCompatActivity {
         }
         return sb.toString();
     }
+
+    public void getUserProfile(){
+        requestType = 2;/*
+        serverResult = null;
+        latch = new CountDownLatch(1);
+        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetUserData?user="+name.getText().toString());
+        waitForResponse();
+        mTask.cancel(true);*/
+        if(serverResult!=null) {
+            Intent intent = new Intent(LoginActivity.this, HomePage.class);
+            //intent is used to go from one activity to another like a source and a destination
+            startActivity(intent);
+        }else getUserProfile();
+
+
+    }
+
 //END SERVER COMMUNICATION
 }
