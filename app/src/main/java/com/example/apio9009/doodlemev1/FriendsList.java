@@ -98,7 +98,7 @@ public class FriendsList extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if(serverResult==1){
-                message.setText("That user does not exist. Pleas try again.");
+                message.setText("Friend Added!");
                 if(!aFriend.isEmpty()) {
                     if(!gList.contains(aFriend)){
                         fList.append(aFriend + "\n");
@@ -107,7 +107,7 @@ public class FriendsList extends AppCompatActivity {
             }else if(serverResult == 2){
                 message.setText("That user does not exist. Pleas try again.");
             }else if(serverResult == 3){
-                message.setText("That user is already part of your friends list. Pleas try again.");
+                message.setText("That user is already part of your friends list. Please try again.");
             }else if(serverResult == -1){
                 message.setText("Fatal Error. Pleas try again.");
             }
