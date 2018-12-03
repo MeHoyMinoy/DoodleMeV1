@@ -11,7 +11,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 
 
 public class NewDoodlePage extends AppCompatActivity {
@@ -29,6 +31,7 @@ public class NewDoodlePage extends AppCompatActivity {
         userID = bundle.getString("UserID");
         setContentView(R.layout.activity_newdoodle);
         friendS = findViewById(R.id.actv);
+        fList = findViewById(R.id.groupList);
         gList =  new ArrayList<String>();
         FriendSearch = bundle.getStringArrayList("friendsList");
         gList.add(bundle.getString("UserID"));                                                                   //adds current user to list. replace this with current user. right now it is defualted to admin
@@ -41,17 +44,20 @@ public class NewDoodlePage extends AppCompatActivity {
 
 
     public void Start(View V){
-        Intent i = new Intent(NewDoodlePage.this, Drawing.class);
-        String[] fList;
-        groupName = (EditText)findViewById(R.id.SetGroupName);
-        String gName = groupName.getText().toString();
-        String[] gArray = gList.toArray(new String[gList.size()]);
-        bundle.putString("GroupName", gName);
-        bundle.putStringArray("FriendsList",gArray);
-        bundle.putBoolean("newDoodle",true);
-        //Add the bundle to the intent
-        i.putExtras(bundle);
-        startActivity(i);
+        if(gList.size()>1) {
+            Intent i = new Intent(NewDoodlePage.this, Drawing.class);
+            String[] fList;
+            groupName = (EditText) findViewById(R.id.SetGroupName);
+            String gName = groupName.getText().toString();
+            String[] gArrayq = gList.toArray(new String[gList.size()]);
+            ArrayList<String> gArray = new ArrayList<String>(Arrays.asList(gArrayq));
+            bundle.putString("GroupName", gName);
+            bundle.putStringArrayList("FriendsList", gArray);
+            bundle.putBoolean("newDoodle", true);
+            //Add the bundle to the intent
+            i.putExtras(bundle);
+            startActivity(i);
+        }
     }
 
     public void addF(View V){

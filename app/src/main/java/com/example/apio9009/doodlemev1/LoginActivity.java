@@ -215,15 +215,19 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(){
-        if(serverResult.equals("1")) {
-            Intent intent = new Intent(LoginActivity.this, HomePage.class);
-            bundle.putString("UserID", name.getText().toString());
-            intent.putExtras(bundle);
-            //intent is used to go from one activity to another like a source and a destination
-            startActivity(intent);
+        if (serverResult!=null) {
+            if (serverResult.equals("1")) {
+                Intent intent = new Intent(LoginActivity.this, HomePage.class);
+                bundle.putString("UserID", name.getText().toString());
+                intent.putExtras(bundle);
+                //intent is used to go from one activity to another like a source and a destination
+                startActivity(intent);
+            } else {
+                counter--;
+                info.setText("No. of attempts remaining: " + counter);
+            }
         }else{
-            counter--;
-            info.setText("No. of attempts remaining: "+counter);
+            info.setText("Trouble communicating with the server. Please try again.");
         }
 
 
