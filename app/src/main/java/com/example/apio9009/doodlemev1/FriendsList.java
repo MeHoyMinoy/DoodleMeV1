@@ -1,13 +1,10 @@
 package com.example.apio9009.doodlemev1;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -26,26 +23,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 
 public class FriendsList extends AppCompatActivity {
-    private EditText groupName;                                                                     //initialize groupName
     private TextView friendS;                                                                     //initialize friendS
     private TextView fList;                                                                         //initialize fList
     public List<String> gList;                                                                      //initialize gList, this is the list of people in the group.
     String userID;
-    String serverResult;
+    int serverResult;
     Bundle bundle = new Bundle();
     HttpURLConnection conn;
     CountDownLatch latch;
-    private HTTPAsyncTask mTask;
-    private ArrayList<String> FriendSearch;//Create the bundle
+    private ArrayList<String> FriendSearch;
     InputStream inputStream;
+    TextView message;
+    String aFriend;
 
     protected void onCreate(Bundle savedInstanceState) {                                            //On create function
         super.onCreate(savedInstanceState);
         bundle = getIntent().getExtras();
+        message = findViewById(R.id.message);
         setContentView(R.layout.activity_friends_list);
         FriendSearch = bundle.getStringArrayList("friendsList");
         friendS = findViewById(R.id.SetGroupName);
@@ -57,23 +53,16 @@ public class FriendsList extends AppCompatActivity {
 
         for(int i = 0; i < FriendSearch.size(); i++){
             fList.append(FriendSearch.get(i) + "\n");
-            gList.add(FriendSearch.get(i) + "\n");
+            gList.add(FriendSearch.get(i));
             }
     }
 
     public void addF(View V){
-        /*String aFriend = friendS.getText().toString();
-        if(!aFriend.isEmpty()) {
-            if(!gList.contains(aFriend)){
-                fList.append(aFriend + "\n");
-                gList.add(aFriend);}
-        }*/
-
-        serverResult = null;
-        latch = new CountDownLatch(1);
-        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/AddFriend");
-        waitForResponse();
-        mTask.cancel(true);
+        aFriend = friendS.getText().toString();
+        message = findViewById(R.id.message);
+        serverResult = 0;
+        HTTPAsyncTask mTask = (HTTPAsyncTask) new HTTPAsyncTask();
+        mTask.execute("http://10.0.2.2:8080/AddFriend?userName="+userID+"&friendUserName="+friendS.getText().toString());
     }
 
     /*public void removeF(View V){
@@ -108,19 +97,23 @@ public class FriendsList extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            //conResult.setText(result);
-        }
-    }
-
-    public void waitForResponse() {
-        while(serverResult == null) {
-            try {
-                boolean result = latch.await(500, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(serverResult==1){
+                message.setText("That user does not exist. Pleas try again.");
+                if(!aFriend.isEmpty()) {
+                    if(!gList.contains(aFriend)){
+                        fList.append(aFriend + "\n");
+                        gList.add(aFriend);}
+                }
+            }else if(serverResult == 2){
+                message.setText("That user does not exist. Pleas try again.");
+            }else if(serverResult == 3){
+                message.setText("That user is already part of your friends list. Pleas try again.");
+            }else if(serverResult == -1){
+                message.setText("Fatal Error. Pleas try again.");
             }
+            message.invalidate();
+            message.requestLayout();
         }
-        // check result and react correspondingly
     }
 
     private String HttpPost(String myUrl) throws IOException, JSONException {
@@ -133,12 +126,7 @@ public class FriendsList extends AppCompatActivity {
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-
-        // 2. build JSON object
-        JSONObject jsonObject = buildJsonObject();
-
-        // 3. add JSON content to POST request body
-        setPostRequestContent(conn, jsonObject);
+        setPostRequestContent(conn);
 
         // 4. make POST request to the given URL
         conn.connect();
@@ -148,27 +136,19 @@ public class FriendsList extends AppCompatActivity {
 
     }
 
-    private JSONObject buildJsonObject() throws JSONException {
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.accumulate("userName", userID);
-        jsonObject.accumulate("friendUserName", friendS.getText().toString());
-
-        return jsonObject;
-    }
-    private void setPostRequestContent(HttpURLConnection conn,
-                                       JSONObject jsonObject) throws IOException {
+    private void setPostRequestContent(HttpURLConnection conn) throws IOException {
 
         OutputStream os = conn.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        writer.write(jsonObject.toString());
+        JSONObject jsonObject = new JSONObject();
         Log.i(LoginActivity.class.toString(), jsonObject.toString());
         writer.flush();
         writer.close();
         os.close();
 
         inputStream = new BufferedInputStream(conn.getInputStream());
-        serverResult = convertStreamToString(inputStream);
+        String resServ = convertStreamToString(inputStream);
+        serverResult = Integer.parseInt(resServ);
     }
 
     public String convertStreamToString(InputStream is) {
@@ -193,8 +173,6 @@ public class FriendsList extends AppCompatActivity {
         }
         return sb.toString();
     }
-
-
     //END SERVER COMMUNICATION
 
 }

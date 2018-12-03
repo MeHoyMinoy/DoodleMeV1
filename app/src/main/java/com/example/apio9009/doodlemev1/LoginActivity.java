@@ -86,39 +86,6 @@ public class LoginActivity extends AppCompatActivity {
         serverResult = null;
         latch = new CountDownLatch(1);
         mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
-        waitForResponse();
-        mTask.cancel(true);
-        if(serverResult == null){
-            validate(userName, userPassword);
-        }else
-        if (serverResult.equals("1")) {
-            getUserProfile();
-        }
-        else {
-            counter--;
-
-            info.setText("No of attempts remaining:   " + String.valueOf(counter));
-
-            if (counter == 0) {
-                login.setEnabled(false);
-            }
-
-        }
-
-
-    }
-
-    public void waitForResponse() {
-        try {
-            boolean result = latch.await(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        // check result and react correspondingly
-    }
-
-    public void notifyOKCommandReceived() {
-        latch.countDown();
     }
 
     public boolean checkNetworkConnection() {
@@ -164,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             conResult.setText(result);
+            login();
         }
     }
 
@@ -246,20 +214,17 @@ public class LoginActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    public void getUserProfile(){
-        requestType = 2;/*
-        serverResult = null;
-        latch = new CountDownLatch(1);
-        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetUserData?user="+name.getText().toString());
-        waitForResponse();
-        mTask.cancel(true);*/
-        if(serverResult!=null) {
+    public void login(){
+        if(serverResult.equals("1")) {
             Intent intent = new Intent(LoginActivity.this, HomePage.class);
             bundle.putString("UserID", name.getText().toString());
             intent.putExtras(bundle);
             //intent is used to go from one activity to another like a source and a destination
             startActivity(intent);
-        }else getUserProfile();
+        }else{
+            counter--;
+            info.setText("No. of attempts remaining: "+counter);
+        }
 
 
     }

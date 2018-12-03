@@ -89,7 +89,7 @@ public class HomePage extends AppCompatActivity {
 
 
         mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
-        waitForResponse();
+        //waitForResponse();
 
 
         //****************************************************************************************\\
