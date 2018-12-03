@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -14,24 +16,31 @@ import java.util.List;
 
 public class NewDoodlePage extends AppCompatActivity {
     private EditText groupName;                                                                     //initialize groupName
-    private SearchView friendS;                                                                     //initialize friendS
+    private TextView friendS;                                                                     //initialize friendS
     private TextView fList;                                                                         //initialize fList
-    public List<String> gList;                                                                      //initialize gList, this is the list of people in the group.
-    Bundle bundle = new Bundle();                                                                   //Create the bundle
+    public List<String> gList;                                                                      //initialize gList, this is the list of people in the group
+    String userID;
+    private ArrayList<String> FriendSearch;
+    Bundle bundle = new Bundle();
 
     protected void onCreate(Bundle savedInstanceState) {                                            //On create function
         super.onCreate(savedInstanceState);
         bundle = getIntent().getExtras();
+        userID = bundle.getString("UserID");
         setContentView(R.layout.activity_newdoodle);
-        friendS = findViewById(R.id.friendSearch);
-        fList = findViewById(R.id.groupList);
+        friendS = findViewById(R.id.actv);
         gList =  new ArrayList<String>();
-        gList.add("AdminUserID");                                                                   //adds current user to list. replace this with current user. right now it is defualted to admin
+        FriendSearch = bundle.getStringArrayList("friendsList");
+        gList.add(bundle.getString("UserID"));                                                                   //adds current user to list. replace this with current user. right now it is defualted to admin
+
+        AutoCompleteTextView editText = findViewById(R.id.actv);
+        ArrayAdapter<String> adap = new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1, FriendSearch);
+        editText.setAdapter(adap);
     }
 
 
-    public void Start(View V){
 
+    public void Start(View V){
         Intent i = new Intent(NewDoodlePage.this, Drawing.class);
         String[] fList;
         groupName = (EditText)findViewById(R.id.SetGroupName);
@@ -46,7 +55,7 @@ public class NewDoodlePage extends AppCompatActivity {
     }
 
     public void addF(View V){
-        String aFriend = friendS.getQuery().toString();
+        String aFriend = friendS.getText().toString();
         if(!aFriend.isEmpty()) {
             if(!gList.contains(aFriend)){
             fList.append(aFriend + "\n ");
@@ -55,7 +64,7 @@ public class NewDoodlePage extends AppCompatActivity {
     }
 
     public void removeF(View V){
-        String rFriend = friendS.getQuery().toString();
+        String rFriend = friendS.getText().toString();
         if(gList.contains(rFriend)){
             gList.remove(rFriend);
         }
@@ -66,5 +75,7 @@ public class NewDoodlePage extends AppCompatActivity {
         }
 
     }
+
+
 
 }

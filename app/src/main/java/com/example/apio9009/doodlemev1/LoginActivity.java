@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         waitForResponse();
         mTask.cancel(true);
         if(serverResult == null){
-
+            validate(userName, userPassword);
         }else
         if (serverResult.equals("1")) {
             getUserProfile();
@@ -196,7 +196,7 @@ public class LoginActivity extends AppCompatActivity {
 
         JSONObject jsonObject = new JSONObject();
         if(requestType == 1) {
-            jsonObject.accumulate("username", name.getText().toString());
+            jsonObject.accumulate("userName", name.getText().toString());
             jsonObject.accumulate("password", password.getText().toString());
         }else if(requestType == 2){
 //            jsonObject.accumulate("user", name.getText().toString());
@@ -264,5 +264,5 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-//END SERVER COMMUNICATION
+    //END SERVER COMMUNICATION
 }

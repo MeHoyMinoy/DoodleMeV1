@@ -86,11 +86,11 @@ public class Drawing extends AppCompatActivity {
         System.out.print(encoded);
         JSONObject doodle = new JSONObject();
         try{
-            doodle.put("Doodle", encoded);
-            doodle.put("gMembers", flist);
-            doodle.put("gName", stuff);
-            doodle.put("currentPlayer", currentPlayer);
-            doodle.put("cpSpot", cpSpot);
+            doodle.put("image", encoded);
+            doodle.put("players", flist);
+            doodle.put("gameName", stuff);
+            doodle.put("currentPlayerUserName", currentPlayer);
+            doodle.put("currentPlayerSpot", cpSpot);
         }catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
