@@ -30,6 +30,7 @@ public class NewDoodlePage extends AppCompatActivity {
         bundle = getIntent().getExtras();
         userID = bundle.getString("UserID");
         setContentView(R.layout.activity_newdoodle);
+        groupName = (EditText) findViewById(R.id.SetGroupName);
         friendS = findViewById(R.id.actv);
         fList = findViewById(R.id.groupList);
         gList =  new ArrayList<String>();
@@ -47,7 +48,6 @@ public class NewDoodlePage extends AppCompatActivity {
         if(gList.size()>1) {
             Intent i = new Intent(NewDoodlePage.this, Drawing.class);
             String[] fList;
-            groupName = (EditText) findViewById(R.id.SetGroupName);
             String gName = groupName.getText().toString();
             String[] gArrayq = gList.toArray(new String[gList.size()]);
             ArrayList<String> gArray = new ArrayList<String>(Arrays.asList(gArrayq));

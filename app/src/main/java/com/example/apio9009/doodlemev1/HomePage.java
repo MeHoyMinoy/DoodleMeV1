@@ -66,7 +66,8 @@ public class HomePage extends AppCompatActivity {
     private String serverResult;
     private ArrayList<String> friendslist = new ArrayList<String>();
     JSONObject json;
-    private HTTPAsyncTask mTask;
+    private HTTPAsyncTask friendsTask;
+    private HTTPAsyncTask feedTask;
 
     int[] IMAGES = {R.drawable.ic_launcher_background, R.drawable.ic_launcher_background};     //general population
     String[] GROUPNAME = {"Group1", "Group2"};   //general population to see if it works
@@ -74,8 +75,8 @@ public class HomePage extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        latch = new CountDownLatch(1);
         super.onCreate(savedInstanceState);
+        latch = new CountDownLatch(1);
         bundle = getIntent().getExtras();
         userID = bundle.getString("UserID");
         setContentView(R.layout.activity_home);
@@ -88,8 +89,8 @@ public class HomePage extends AppCompatActivity {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
 
-        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
-        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
+
+        //feedTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
 
 
         //****************************************************************************************\\
@@ -108,7 +109,19 @@ public class HomePage extends AppCompatActivity {
 
         //**************************************************************************************
 
+        Activate();
     }
+
+    @Override
+    public void onResume()
+    {  // After a pause OR at startup
+        super.onResume();
+        Activate();
+        }
+
+    private void Activate(){
+        friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"), "http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
+        }
 
     class CustomAdapter extends BaseAdapter {
 
@@ -152,7 +165,7 @@ public class HomePage extends AppCompatActivity {
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
-    }
+        }
 
     public void goToProfile(View V) {
         Intent intent = new Intent(HomePage.this, UserProfile.class);
@@ -167,7 +180,8 @@ public class HomePage extends AppCompatActivity {
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
-        startActivity(intent);    }
+        startActivity(intent);
+        }
 
     public void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
@@ -199,17 +213,20 @@ public class HomePage extends AppCompatActivity {
         @Override
         protected String doInBackground(String... urls) {
             // params comes from the execute() call: params[0] is the url.
-            try {
-                try {
-                    return HttpGet(urls[0]);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return "Error!";
-                }
-            } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
+                    try {
+                        try {
+                            return HttpGetFriends(urls[0]);
+                            }
+                        catch (JSONException e) {
+                            e.printStackTrace();
+                            return "Error!";
+                            }
+                        }
+                    catch (IOException e) {
+                        return "Unable to retrieve web page. URL may be invalid.";
+                        }
+                    }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
@@ -217,24 +234,19 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
-    private String HttpGet(String myUrl) throws IOException, JSONException {
+
+    private String  HttpGetFriends(String myUrl) throws IOException, JSONException {
 
         URL url = new URL(myUrl);
-
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
         con.setRequestMethod("GET");
-
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-
         String inputLine;
         StringBuffer response = new StringBuffer();
 
-
-
         while ((inputLine = in.readLine()) != null){
             response.append(inputLine);
-        }
+            }
 
         String replaceS = response.toString();
         replaceS = replaceS.replace("[","");
@@ -244,8 +256,8 @@ public class HomePage extends AppCompatActivity {
         in.close();
         bundle.putStringArrayList("friendsList", myList);
         return "lel";
+        }
 
-    }
     private void setGetRequestContent(HttpURLConnection conn) throws IOException {
         inputStream = new BufferedInputStream(conn.getInputStream());
         serverResult = convertStreamToString(inputStream);

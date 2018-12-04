@@ -1,5 +1,6 @@
 package com.example.apio9009.doodlemev1;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -50,12 +51,18 @@ public class FriendsList extends AppCompatActivity {
         userID = bundle.getString("UserID");
         gList.add(bundle.getString("UserID"));                                                                   //adds current user to list. replace this with current user. right now it is defualted to admin
 
-
         for(int i = 0; i < FriendSearch.size(); i++){
             fList.append(FriendSearch.get(i) + "\n");
             gList.add(FriendSearch.get(i));
             }
     }
+
+    /*@Override
+    public void onBackPressed() {
+        this.moveTaskToBack(true);
+        Intent intent = new Intent(FriendsList.this, HomePage.class);
+        this.finish();
+        }*/
 
     public void addF(View V){
         aFriend = friendS.getText().toString();
@@ -63,7 +70,8 @@ public class FriendsList extends AppCompatActivity {
         serverResult = 0;
         HTTPAsyncTask mTask = (HTTPAsyncTask) new HTTPAsyncTask();
         mTask.execute("http://10.0.2.2:8080/AddFriend?userName="+userID+"&friendUserName="+friendS.getText().toString());
-    }
+        friendS.setText("");
+        }
 
     /*public void removeF(View V){
         String rFriend = friendS.getText().toString();

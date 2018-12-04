@@ -42,6 +42,7 @@ public class Drawing extends AppCompatActivity {
     ArrayList<String> flist;
     String userID;
     Bitmap doodle;
+    ArrayList<String> Painting = new ArrayList<String>();
     String doodleEnc;
     String currentPlayer;
     int cpSpot = 0;
@@ -66,6 +67,7 @@ public class Drawing extends AppCompatActivity {
             doodleEnc = bundle.getString("encoded");
             byte[] byteArray = Base64.decode(doodleEnc, Base64.DEFAULT);
             doodle = BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+
             currentPlayer = bundle.getString("currentPlayer");
             cpSpot = bundle.getInt("cpSpot");
             canvasView.setDoodle(doodle);
@@ -199,29 +201,28 @@ public class Drawing extends AppCompatActivity {
     }
 
     private JSONObject buildJsonObject() throws JSONException {
-
         //json conversion-------------------------------------------------------------------------\\
         Bitmap image = canvasView.getDoodle();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        JSONObject doodle = new JSONObject();
-        String json = new Gson().toJson(flist);
+        JSONArray JArray = new JSONArray(flist);
+        JSONObject doodleJ = new JSONObject();
         try{
-            doodle.put("image", encoded);
-            doodle.put("players", json);
-            doodle.put("gameName", stuff);
-            doodle.put("currentPlayerUserName", currentPlayer);
-            doodle.put("currentPlayerSpot", cpSpot);
-            doodle.put("ownerUserName", flist.get(0));
+            doodleJ.put("image", encoded);
+            doodleJ.put("players", JArray);
+            doodleJ.put("gameName", stuff);
+            doodleJ.put("currentPlayerUserName", currentPlayer);
+            doodleJ.put("currentPlayerSpot", cpSpot);
+            doodleJ.put("ownerUserName", flist.get(0));
         }catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         //end json conversion---------------------------------------------------------------------//
-        System.out.print(doodle);
-        return doodle;
+        System.out.print(doodleJ);
+        return doodleJ;
     }
 
 
