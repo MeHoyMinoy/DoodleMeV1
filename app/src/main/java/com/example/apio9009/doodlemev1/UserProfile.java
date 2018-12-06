@@ -28,8 +28,8 @@ public class UserProfile extends AppCompatActivity {
         User =(TextView)findViewById(R.id.Username);
         Birth =(TextView)findViewById(R.id.Birthday);
 
-        User.setText("Preloaded " );
-        Birth.setText("Preloaded " );
+        User.setText(" " );
+        Birth.setText(" " );
 
 
 
@@ -53,7 +53,9 @@ public class UserProfile extends AppCompatActivity {
 
     private void logoutOfApp() {
         finish();
-        System.exit(0);
+        Intent intent = new Intent(UserProfile.this, LoginActivity.class);  // how to go to next thing yayaya
+        //intent is used to go from one activity to another like a source and a destination
+        startActivity(intent);
     }
 
     private void directedToFriendsList(){

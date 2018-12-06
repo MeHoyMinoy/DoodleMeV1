@@ -64,27 +64,24 @@ public class FriendsList extends AppCompatActivity {
         this.finish();
         }*/
 
-    public void addF(View V){
+    public void addF(View V) {
         aFriend = friendS.getText().toString();
+        friendS.setText("");
         message = findViewById(R.id.message);
         serverResult = 0;
         HTTPAsyncTask mTask = (HTTPAsyncTask) new HTTPAsyncTask();
-        mTask.execute("http://10.0.2.2:8080/AddFriend?userName="+userID+"&friendUserName="+friendS.getText().toString());
+        mTask.execute("http://10.0.2.2:8080/AddFriend?userName=" + userID + "&friendUserName=" + aFriend);
+    }
+
+    public void removeF(View V){
+        aFriend = friendS.getText().toString();
         friendS.setText("");
-        }
+        message = findViewById(R.id.message);
+        serverResult = 0;
+        HTTPAsyncTask2 mTask2 = (HTTPAsyncTask2) new HTTPAsyncTask2();
+        mTask2.execute("http://10.0.2.2:8080/DeleteFriend?userName=" + userID + "&friendUserName=" + aFriend);
 
-    /*public void removeF(View V){
-        String rFriend = friendS.getText().toString();
-        if(gList.contains(rFriend)){
-            gList.remove(rFriend);
-        }
-        String[] gArray = gList.toArray(new String[gList.size()]);
-        //fList.setText(" ");
-        for(int i = 1; i < gArray.length; i++){
-            fList.append(gArray[i] + "\n");
-        }
-
-    }*/
+    }
 
     //SERVE COMMUNICATION
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
@@ -113,7 +110,7 @@ public class FriendsList extends AppCompatActivity {
                         gList.add(aFriend);}
                 }
             }else if(serverResult == 2){
-                message.setText("That user does not exist. Pleas try again.");
+                message.setText("That user does not exist. Please try again.");
             }else if(serverResult == 3){
                 message.setText("That user is already part of your friends list. Please try again.");
             }else if(serverResult == -1){
@@ -122,7 +119,48 @@ public class FriendsList extends AppCompatActivity {
             message.invalidate();
             message.requestLayout();
         }
-    }
+    }       //Add Friend
+
+    private class HTTPAsyncTask2 extends AsyncTask<String, Void, String> {          //DeleteFriend
+        @Override
+        protected String doInBackground(String... urls) {
+            // params comes from the execute() call: params[0] is the url.
+            try {
+                try {
+                    return HttpPost(urls[0]);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return "Error!";
+                }
+            } catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            if(serverResult==1){
+                message.setText("Friend Deleted!");
+                if(!aFriend.isEmpty()) {
+                    if (gList.contains(aFriend)) {
+                        gList.remove(aFriend);
+                        fList.setText("");
+                        for (int i = 1; i < gList.size(); i++) {
+                            fList.append(gList.get(i) + "\n");
+                        }
+                    }
+                }
+            }else if(serverResult == 2){
+                message.setText("That user does not exist. Please try again.");
+            }else if(serverResult == 3){
+                message.setText("That user is not on your friends list. Please try again.");
+            }else if(serverResult == -1){
+                message.setText("Fatal Error. Pleas try again.");
+            }
+            message.invalidate();
+            message.requestLayout();
+        }
+    }      //Delete Friend
 
     private String HttpPost(String myUrl) throws IOException, JSONException {
         String result = "";

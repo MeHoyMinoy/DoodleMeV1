@@ -84,21 +84,6 @@ public class Register extends AppCompatActivity {
             serverResult = null;
             latch = new CountDownLatch(1);
             mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreateProfile");
-            waitForResponse();
-            mTask.cancel(true);
-            if (serverResult.equals("-1")) {
-                message.setText("That username is already taken.");
-            } else if (serverResult.equals("1")) {
-                //create bundle-----------------------------------------------------------------------\\
-                Intent i = new Intent(Register.this, HomePage.class);
-                String[] fList;
-                String userID = username.getText().toString();
-                bundle.putString("UserID", userID);
-                //Add the bundle to the intent
-                i.putExtras(bundle);
-                startActivity(i);
-                //end bundle--------------------------------------------------------------------------//
-            }
 
         }
 
@@ -150,6 +135,19 @@ public class Register extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             //conResult.setText(result);
+            if (serverResult.equals("-1")) {
+                message.setText("That username is already taken.");
+            } else if (serverResult.equals("1")) {
+                //create bundle-----------------------------------------------------------------------\\
+                Intent i = new Intent(Register.this, HomePage.class);
+                String[] fList;
+                String userID = username.getText().toString();
+                bundle.putString("UserID", userID);
+                //Add the bundle to the intent
+                i.putExtras(bundle);
+                startActivity(i);
+                //end bundle--------------------------------------------------------------------------//
+            }
         }
     }
 

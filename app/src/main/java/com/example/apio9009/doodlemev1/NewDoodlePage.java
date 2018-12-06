@@ -9,7 +9,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,9 @@ public class NewDoodlePage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         bundle = getIntent().getExtras();
         userID = bundle.getString("UserID");
+
         setContentView(R.layout.activity_newdoodle);
+
         groupName = (EditText) findViewById(R.id.SetGroupName);
         friendS = findViewById(R.id.actv);
         fList = findViewById(R.id.groupList);
@@ -51,6 +52,7 @@ public class NewDoodlePage extends AppCompatActivity {
             String gName = groupName.getText().toString();
             String[] gArrayq = gList.toArray(new String[gList.size()]);
             ArrayList<String> gArray = new ArrayList<String>(Arrays.asList(gArrayq));
+            bundle.putInt("NumOfPaint", 1);/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
             bundle.putString("GroupName", gName);
             bundle.putStringArrayList("FriendsList", gArray);
             bundle.putBoolean("newDoodle", true);
@@ -64,9 +66,10 @@ public class NewDoodlePage extends AppCompatActivity {
         String aFriend = friendS.getText().toString();
         if(!aFriend.isEmpty()) {
             if(!gList.contains(aFriend)){
-            fList.append(aFriend + "\n ");
+            fList.append(aFriend + "\n");
             gList.add(aFriend);}
         }
+        friendS.setText("");
     }
 
     public void removeF(View V){
@@ -77,8 +80,9 @@ public class NewDoodlePage extends AppCompatActivity {
         String[] gArray = gList.toArray(new String[gList.size()]);
         fList.setText(" ");
         for(int i = 1; i < gArray.length; i++){
-            fList.append(gArray[i] + "\n ");
+            fList.append(gArray[i] + "\n");
         }
+        friendS.setText("");
 
     }
 

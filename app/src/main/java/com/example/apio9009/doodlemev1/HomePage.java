@@ -1,6 +1,8 @@
 package com.example.apio9009.doodlemev1;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -12,6 +14,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +33,7 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +64,12 @@ public class HomePage extends AppCompatActivity {
     private int requestType = 0;
     InputStream inputStream;
     JSONArray jsonArray;
+    String doodleEnc;
+    String groupName;
+    Bitmap doodle;
     String userID;
+    int num;
+    int numOfPaint;
     ArrayList<String> myList;
     HttpURLConnection connection;
     private String serverResult;
@@ -69,18 +78,21 @@ public class HomePage extends AppCompatActivity {
     private HTTPAsyncTask friendsTask;
     private HTTPAsyncTask feedTask;
 
-    int[] IMAGES = {R.drawable.ic_launcher_background, R.drawable.ic_launcher_background};     //general population
-    String[] GROUPNAME = {"Group1", "Group2"};   //general population to see if it works
+    int[] IMAGES = {R.drawable.ic_launcher_background};     //general population
+    String[] GROUPNAME = {"Group1","Group2"};   //general population to see if it works
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        latch = new CountDownLatch(1);
         bundle = getIntent().getExtras();
         userID = bundle.getString("UserID");
+
+        numOfPaint = bundle.getInt("NumOfPaint");///////////////////////////////////////////
         setContentView(R.layout.activity_home);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
+
+        /*NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.newdoodle)
                 .setContentTitle("test")
                 .setContentText("test")
@@ -95,7 +107,7 @@ public class HomePage extends AppCompatActivity {
 
         //****************************************************************************************\\
         int notificationId = 1;
-        notificationManager.notify(notificationId, mBuilder.build());
+        notificationManager.notify(notificationId, mBuilder.build());*/
 
 
 
@@ -103,13 +115,11 @@ public class HomePage extends AppCompatActivity {
 
         //********************************************************************************************\\
 
-        ListView feed = (ListView) findViewById(R.id.FeedListView);
-        CustomAdapter customAdapter = new CustomAdapter();
-        feed.setAdapter(customAdapter);
+
+        //feed.
 
         //**************************************************************************************
 
-        Activate();
     }
 
     @Override
@@ -120,7 +130,29 @@ public class HomePage extends AppCompatActivity {
         }
 
     private void Activate(){
-        friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"), "http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
+        friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
+
+
+        bundle = getIntent().getExtras();
+        String encoded = bundle.getString("Doodle");
+        int currentPlayerSpot = bundle.getInt("cpSpot");
+        String currentPlayer = bundle.getString("currentPlayer");
+        groupName = bundle.getString("GroupName");
+        ArrayList<String> friendGroup = bundle.getStringArrayList("FriendsList");
+        num = bundle.getInt("NumOfPaint");/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
+        if(encoded != null) {
+            byte[] byteArray = Base64.decode(encoded, Base64.DEFAULT);
+            doodle = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
+            //feedTask = (HTTPAsyncTask) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
+            ListView feed = findViewById(R.id.FeedListView);
+            CustomAdapter customAdapter = new CustomAdapter();
+            System.out.println("1--------------------------------------------------------------------------------------------------------------------------");
+            feed.setAdapter(customAdapter);
+
+        }
+
+
         }
 
     class CustomAdapter extends BaseAdapter {
@@ -133,7 +165,7 @@ public class HomePage extends AppCompatActivity {
 
         @Override
         public Object getItem(int i) {
-            return null;
+            return 1;
 
         }
 
@@ -145,20 +177,20 @@ public class HomePage extends AppCompatActivity {
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
+            view = getLayoutInflater().inflate(R.layout.item, viewGroup, false);
 
-            view = getLayoutInflater().inflate(R.layout.item, null);
+                ImageView imageView = (ImageView) view.findViewById(R.id.Image);
+                TextView textViewGroup = (TextView) view.findViewById(R.id.textViewGroup);
+            System.out.println("2--------------------------------------------------------------------------------------------------------------------------");
+                imageView.setImageBitmap(doodle);
+                textViewGroup.setText(GROUPNAME[i]);
+            System.out.println("3--------------------------------------------------------------------------------------------------------------------------");
 
-            ImageView imageView = (ImageView) view.findViewById(R.id.Image);
-            TextView textViewGroup = (TextView) view.findViewById(R.id.textViewGroup);
-
-            imageView.setImageResource(IMAGES[i]);
-            textViewGroup.setText(GROUPNAME[i]);
 
             return view;
         }
 
     }
-
     public void NewDoodle(View V) {
         Intent intent = new Intent(HomePage.this, NewDoodlePage.class);
         bundle.putString("UserID", userID);
@@ -199,15 +231,6 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
-    public void waitForResponse() {
-        try {
-            boolean result = latch.await(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        // check result and react correspondingly
-    }
-
 
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
         @Override
@@ -232,8 +255,7 @@ public class HomePage extends AppCompatActivity {
         protected void onPostExecute(String result) {
            // conResult.setText(result);
         }
-    }
-
+    }    //Friends
 
     private String  HttpGetFriends(String myUrl) throws IOException, JSONException {
 
@@ -246,7 +268,7 @@ public class HomePage extends AppCompatActivity {
 
         while ((inputLine = in.readLine()) != null){
             response.append(inputLine);
-            }
+        }
 
         String replaceS = response.toString();
         replaceS = replaceS.replace("[","");
@@ -256,7 +278,57 @@ public class HomePage extends AppCompatActivity {
         in.close();
         bundle.putStringArrayList("friendsList", myList);
         return "lel";
+    }
+
+
+    /*private class HTTPAsyncTask2 extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            // params comes from the execute() call: params[0] is the url.
+            try {
+                try {
+                    return HttpGetFeed(urls[0]);
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                    return "Error!";
+                }
+            }
+            catch (IOException e) {
+                return "Unable to retrieve web page. URL may be invalid.";
+            }
         }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            // conResult.setText(result);
+        }
+    }   //Feed
+
+    private String  HttpGetFeed(String myUrl) throws IOException, JSONException {
+
+        URL url = new URL(myUrl);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null){
+            response.append(inputLine);
+        }
+
+        String replaceS = response.toString();
+        replaceS = replaceS.replace("[","");
+        replaceS = replaceS.replace("]","");
+        replaceS = replaceS.replace("\"","");
+        myList = new ArrayList<String>(Arrays.asList(replaceS.split(",")));
+        in.close();
+        bundle.putStringArrayList("friendsList", myList);
+        return "lel";
+    }*/
+
 
     private void setGetRequestContent(HttpURLConnection conn) throws IOException {
         inputStream = new BufferedInputStream(conn.getInputStream());

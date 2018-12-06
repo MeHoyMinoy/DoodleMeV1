@@ -218,6 +218,7 @@ public class LoginActivity extends AppCompatActivity {
         if (serverResult!=null) {
             if (serverResult.equals("1")) {
                 Intent intent = new Intent(LoginActivity.this, HomePage.class);
+                bundle.putInt("NumOfPaint", 0);/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
                 bundle.putString("UserID", name.getText().toString());
                 intent.putExtras(bundle);
                 //intent is used to go from one activity to another like a source and a destination

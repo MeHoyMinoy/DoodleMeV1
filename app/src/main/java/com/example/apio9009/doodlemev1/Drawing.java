@@ -3,9 +3,12 @@ package com.example.apio9009.doodlemev1;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +26,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +36,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Drawing extends AppCompatActivity {
 
@@ -41,10 +47,12 @@ public class Drawing extends AppCompatActivity {
     String stuff;
     ArrayList<String> flist;
     String userID;
-    Bitmap doodle;
     ArrayList<String> Painting = new ArrayList<String>();
     String doodleEnc;
+    Bitmap doodle;
     String currentPlayer;
+    CanvasView cView;
+    String encoded;
     int cpSpot = 0;
     InputStream inputStream;
     private String serverResult;
@@ -53,7 +61,6 @@ public class Drawing extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {                                          //On create function
-        //bundle stuff----------------------------------------------------------------------------\\
         super.onCreate(savedInstanceState);
         //Get the bundle
         bundle = getIntent().getExtras();
@@ -64,8 +71,9 @@ public class Drawing extends AppCompatActivity {
         flist = bundle.getStringArrayList("FriendsList");
 
         if(!newDoodle) {
-            doodleEnc = bundle.getString("encoded");
+            doodleEnc = bundle.getString("Doodle");
             byte[] byteArray = Base64.decode(doodleEnc, Base64.DEFAULT);
+
             doodle = BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
 
             currentPlayer = bundle.getString("currentPlayer");
@@ -100,10 +108,36 @@ public class Drawing extends AppCompatActivity {
     }
 
     public void send(View v){
+        cView = findViewById(R.id.canvas);
+        Canvas imageC = canvasView.getCanvas();
+        cView.draw(imageC);
+        Bitmap image = canvasView.getDoodle();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        Intent intent = new Intent(Drawing.this, HomePage.class);
+        bundle.putString("UserID", userID);
+        bundle.putString("Doodle", encoded);
+        bundle.putInt("cpSpot", cpSpot);
+        bundle.putString("currentPlayer", currentPlayer);
+        bundle.putString("GroupName", stuff);
+        bundle.putStringArrayList("FriendsList",flist);
+        bundle.putInt("NumOfPaint", 1);/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
+        System.out.println("---------------------------------------------------------------------------------------------------------------------------");
+        intent.putExtras(bundle);
+        //intent is used to go from one activity to another like a source and a destination
+
+
+
+
+
         serverResult = null;
         if(newDoodle){
             mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreatePainting");
-        }else mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/UpdatePainting");
+            }
+        else
+            mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/UpdatePainting");
     }
 
     public void setBlack(View V){
@@ -265,13 +299,24 @@ public class Drawing extends AppCompatActivity {
     }
 
     public void next(){
+        Intent intent = new Intent(Drawing.this, HomePage.class);
+        bundle.putString("UserID", userID);
+        bundle.putString("Doodle", encoded);
+        bundle.putInt("cpSpot", cpSpot);
+        bundle.putString("currentPlayer", currentPlayer);
+        bundle.putString("GroupName", stuff);
+        bundle.putStringArrayList("FriendsList",flist);
+        bundle.putInt("NumOfPaint", 1);/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
+        intent.putExtras(bundle);
+        //intent is used to go from one activity to another like a source and a destination
+        startActivity(intent);
         if (serverResult!=null) {
             if (serverResult.equals("1")) {
-                Intent intent = new Intent(Drawing.this, HomePage.class);
-                bundle.putString("UserID", userID);
-                intent.putExtras(bundle);
-                //intent is used to go from one activity to another like a source and a destination
-                startActivity(intent);
+//                Intent intent = new Intent(Drawing.this, HomePage.class);
+//                bundle.putString("UserID", userID);
+//                intent.putExtras(bundle);
+//                //intent is used to go from one activity to another like a source and a destination
+//                startActivity(intent);
             } else {
 
             }
