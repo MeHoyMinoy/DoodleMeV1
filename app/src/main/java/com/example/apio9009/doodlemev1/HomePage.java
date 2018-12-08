@@ -1,10 +1,8 @@
 package com.example.apio9009.doodlemev1;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -12,8 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -23,8 +19,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ListView;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,28 +27,17 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class HomePage extends AppCompatActivity {
     private static final String CHANNEL_ID = "DoodleMe";
@@ -71,12 +54,13 @@ public class HomePage extends AppCompatActivity {
     int num;
     int numOfPaint;
     ArrayList<String> myList;
+    ArrayList<Image> myFeed = new ArrayList<>();
+    Object temp;
     HttpURLConnection connection;
     private String serverResult;
-    private ArrayList<String> friendslist = new ArrayList<String>();
     JSONObject json;
     private HTTPAsyncTask friendsTask;
-    private HTTPAsyncTask feedTask;
+    private HTTPAsyncTask2 feedTask;
 
     int[] IMAGES = {R.drawable.ic_launcher_background};     //general population
     String[] GROUPNAME = {"Group1","Group2"};   //general population to see if it works
@@ -91,6 +75,7 @@ public class HomePage extends AppCompatActivity {
         numOfPaint = bundle.getInt("NumOfPaint");///////////////////////////////////////////
         setContentView(R.layout.activity_home);
         friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
+//        feedTask = (HTTPAsyncTask2) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
 
         /*NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.newdoodle)
@@ -131,6 +116,7 @@ public class HomePage extends AppCompatActivity {
 
     private void Activate(){
         friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
+        feedTask = (HTTPAsyncTask2) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
 
 
         bundle = getIntent().getExtras();
@@ -143,23 +129,14 @@ public class HomePage extends AppCompatActivity {
         if(encoded != null) {
             byte[] byteArray = Base64.decode(encoded, Base64.DEFAULT);
             doodle = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-
-            //feedTask = (HTTPAsyncTask) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
-            ListView feed = findViewById(R.id.FeedListView);
-            CustomAdapter customAdapter = new CustomAdapter();
-            System.out.println("1--------------------------------------------------------------------------------------------------------------------------");
-            feed.setAdapter(customAdapter);
-
-        }
-
-
+            }
         }
 
     class CustomAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
-            return IMAGES.length;
+            return myFeed.size();
 
         }
 
@@ -178,13 +155,10 @@ public class HomePage extends AppCompatActivity {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             view = getLayoutInflater().inflate(R.layout.item, viewGroup, false);
-
                 ImageView imageView = (ImageView) view.findViewById(R.id.Image);
                 TextView textViewGroup = (TextView) view.findViewById(R.id.textViewGroup);
-            System.out.println("2--------------------------------------------------------------------------------------------------------------------------");
-                imageView.setImageBitmap(doodle);
-                textViewGroup.setText(GROUPNAME[i]);
-            System.out.println("3--------------------------------------------------------------------------------------------------------------------------");
+                imageView.setImageBitmap(myFeed.get(i).getBitmap());
+                textViewGroup.setText(myFeed.get(i).getGameName());
 
 
             return view;
@@ -281,7 +255,7 @@ public class HomePage extends AppCompatActivity {
     }
 
 
-    /*private class HTTPAsyncTask2 extends AsyncTask<String, Void, String> {
+    private class HTTPAsyncTask2 extends AsyncTask<String, Void, String> {  //Feed
         @Override
         protected String doInBackground(String... urls) {
             // params comes from the execute() call: params[0] is the url.
@@ -302,18 +276,22 @@ public class HomePage extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            // conResult.setText(result);
+            if(!myFeed.isEmpty()) {
+                ListView feed = findViewById(R.id.FeedListView);
+                CustomAdapter customAdapter = new CustomAdapter();
+                feed.setAdapter(customAdapter);
+            }
         }
-    }   //Feed
+    }
 
+    @SuppressLint("NewApi")
     private String  HttpGetFeed(String myUrl) throws IOException, JSONException {
-
         URL url = new URL(myUrl);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
 
         while ((inputLine = in.readLine()) != null){
             response.append(inputLine);
@@ -321,14 +299,55 @@ public class HomePage extends AppCompatActivity {
 
         String replaceS = response.toString();
         replaceS = replaceS.replace("[","");
-        replaceS = replaceS.replace("]","");
+        replaceS = replaceS.replaceAll("\"paintingID\":", "");
+        replaceS = replaceS.replaceAll("\"gameName\":", "");
+        replaceS = replaceS.replaceAll("\"ownerUserName\":", "");
+        replaceS = replaceS.replaceAll("\"image\":", "");
+        replaceS = replaceS.replaceAll("\"currentPlayerUserName\":", "");
+        replaceS = replaceS.replaceAll("\"currentPlayerSpot\":", "");
+        replaceS = replaceS.replaceAll("\"players\":", "");
         replaceS = replaceS.replace("\"","");
-        myList = new ArrayList<String>(Arrays.asList(replaceS.split(",")));
-        in.close();
-        bundle.putStringArrayList("friendsList", myList);
-        return "lel";
-    }*/
+        replaceS = replaceS.replace("]","");
+        replaceS = replaceS.replaceAll("\\},","}");
+        replaceS = replaceS.replace("{","");
 
+        ArrayList<String> stringManip1 = new ArrayList<String>(Arrays.asList(replaceS.split("\\}")));
+        ArrayList<String> stringManip2;
+        Image temp;
+        if(stringManip1.get(0) != "") {
+            for (int i = 0; i < stringManip1.size(); i++) {
+                stringManip2 = new ArrayList<String>(Arrays.asList(stringManip1.get(i).split(",")));
+                temp = new Image();
+                temp.setPaintingID(Integer.parseInt(stringManip2.get(0)));
+                temp.setGameName(stringManip2.get(1));
+                temp.setOwnerUserName(stringManip2.get(2));
+                temp.setImage(stringManip2.get(3).replaceAll("\\\\n", ""));
+                System.out.println(temp.getImage());
+                temp.setCurrentPlayerUserName(stringManip2.get(4));
+                temp.setCurrentPlayerSpot(Integer.parseInt(stringManip2.get(5)));
+                temp.setPlayers(null);
+                System.out.println(i);
+                myFeed.add(temp);
+            }
+        }
+
+        return "lel";
+        }
+
+    private void setPostRequestContent(HttpURLConnection conn,
+                                       JSONObject jsonObject) throws IOException {
+
+        OutputStream os = conn.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+        writer.write(jsonObject.toString());
+        Log.i(LoginActivity.class.toString(), jsonObject.toString());
+        writer.flush();
+        writer.close();
+        os.close();
+
+        inputStream = new BufferedInputStream(conn.getInputStream());
+        serverResult = convertStreamToString(inputStream);
+    }
 
     private void setGetRequestContent(HttpURLConnection conn) throws IOException {
         inputStream = new BufferedInputStream(conn.getInputStream());
@@ -344,11 +363,7 @@ public class HomePage extends AppCompatActivity {
 
         try {
             while ((line = reader.readLine()) != null) {
-                if(requestType == 1) {
                     sb.append((line));
-                }else if(requestType == 2){
-                    sb.append((line)+"\n");
-                }
             }
         } catch (IOException e) {
             e.printStackTrace();

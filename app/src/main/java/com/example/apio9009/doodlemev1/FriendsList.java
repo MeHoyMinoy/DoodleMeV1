@@ -50,11 +50,12 @@ public class FriendsList extends AppCompatActivity {
         gList =  new ArrayList<String>();
         userID = bundle.getString("UserID");
         gList.add(bundle.getString("UserID"));                                                                   //adds current user to list. replace this with current user. right now it is defualted to admin
-
-        for(int i = 0; i < FriendSearch.size(); i++){
-            fList.append(FriendSearch.get(i) + "\n");
-            gList.add(FriendSearch.get(i));
+        if(FriendSearch.size() > 0) {
+            for (int i = 0; i < FriendSearch.size(); i++) {
+                fList.append(FriendSearch.get(i) + "\n");
+                gList.add(FriendSearch.get(i));
             }
+        }
     }
 
     /*@Override

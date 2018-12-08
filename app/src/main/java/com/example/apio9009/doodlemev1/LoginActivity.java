@@ -1,5 +1,6 @@
 package com.example.apio9009.doodlemev1;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -37,17 +38,15 @@ public class LoginActivity extends AppCompatActivity {
         private TextView info;
         private TextView appIsConnected;
         private TextView conResult;
-        private Button login;
-        private Button reg;
         InputStream inputStream;
         HttpURLConnection conn;
         private String serverResult;
         private int counter = 5;
-        private HTTPAsyncTask mTask;
         private int requestType = 0;
         CountDownLatch latch;
         Bundle bundle = new Bundle();                                                                   //Create the bundle
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +57,8 @@ public class LoginActivity extends AppCompatActivity {
         info = (TextView)findViewById(R.id.etInfo);
         appIsConnected = (TextView)findViewById(R.id.appIsConnected);
         conResult = (TextView)findViewById(R.id.resultTest);
-        login = (Button)findViewById(R.id.buttonLogin);
-        reg = (Button)findViewById(R.id.registerB);
+        Button login = (Button) findViewById(R.id.buttonLogin);
+        Button reg = (Button) findViewById(R.id.registerB);
 
         info.setText("No of attempts remaining:   5");
         checkNetworkConnection();
@@ -85,9 +84,10 @@ public class LoginActivity extends AppCompatActivity {
         requestType = 1;
         serverResult = null;
         latch = new CountDownLatch(1);
-        mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
+        HTTPAsyncTask mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/Login");
     }
 
+    @SuppressLint("SetTextI18n")
     public boolean checkNetworkConnection() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -112,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //SERVE COMMUNICATION
+    @SuppressLint("StaticFieldLeak")
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -136,8 +137,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private String HttpPost(String myUrl) throws IOException, JSONException {
-        String result = "";
-
         URL url = new URL(myUrl);
 
         // 1. create HttpURLConnection
@@ -166,8 +165,6 @@ public class LoginActivity extends AppCompatActivity {
         if(requestType == 1) {
             jsonObject.accumulate("userName", name.getText().toString());
             jsonObject.accumulate("password", password.getText().toString());
-        }else if(requestType == 2){
-//            jsonObject.accumulate("user", name.getText().toString());
         }
 
         return jsonObject;
@@ -192,14 +189,14 @@ public class LoginActivity extends AppCompatActivity {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
 
-        String line = null;
+        String line;
 
         try {
             while ((line = reader.readLine()) != null) {
                 if(requestType == 1) {
                     sb.append((line));
                 }else if(requestType == 2){
-                    sb.append((line)+"\n");
+                    sb.append(line).append("\n");
                 }
             }
         } catch (IOException e) {
@@ -214,6 +211,7 @@ public class LoginActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+    @SuppressLint("SetTextI18n")
     public void login(){
         if (serverResult!=null) {
             if (serverResult.equals("1")) {

@@ -138,6 +138,8 @@ public class Drawing extends AppCompatActivity {
             }
         else
             mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/UpdatePainting");
+
+        next();
     }
 
     public void setBlack(View V){
@@ -241,6 +243,7 @@ public class Drawing extends AppCompatActivity {
         image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        System.out.println(encoded);
         JSONArray JArray = new JSONArray(flist);
         JSONObject doodleJ = new JSONObject();
         try{
@@ -254,8 +257,6 @@ public class Drawing extends AppCompatActivity {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        //end json conversion---------------------------------------------------------------------//
-        System.out.print(doodleJ);
         return doodleJ;
     }
 
@@ -310,21 +311,6 @@ public class Drawing extends AppCompatActivity {
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
-        if (serverResult!=null) {
-            if (serverResult.equals("1")) {
-//                Intent intent = new Intent(Drawing.this, HomePage.class);
-//                bundle.putString("UserID", userID);
-//                intent.putExtras(bundle);
-//                //intent is used to go from one activity to another like a source and a destination
-//                startActivity(intent);
-            } else {
-
-            }
-        }else{
-
-        }
-
-
     }
 
     //END SERVER COMMUNICATION
