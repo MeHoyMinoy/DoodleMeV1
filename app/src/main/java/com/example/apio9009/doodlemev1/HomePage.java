@@ -170,6 +170,7 @@ public class HomePage extends AppCompatActivity {
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
+        myFeed.clear();
         startActivity(intent);
         }
 
@@ -177,6 +178,7 @@ public class HomePage extends AppCompatActivity {
         Intent intent = new Intent(HomePage.this, UserProfile.class);
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
+        myFeed.clear();
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
     }
@@ -185,6 +187,7 @@ public class HomePage extends AppCompatActivity {
         Intent intent = new Intent(HomePage.this, FriendsList.class);
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
+        myFeed.clear();
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
         }
