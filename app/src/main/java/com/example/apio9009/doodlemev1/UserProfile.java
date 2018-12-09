@@ -11,10 +11,6 @@ import android.widget.TextView;
 public class UserProfile extends AppCompatActivity {
 
 
-    private EditText name;
-    private TextView User;
-    private TextView Birth;
-    private Button logoutButton;
     private Button FriendsButton;
 
     @Override
@@ -22,14 +18,13 @@ public class UserProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        name =(EditText)findViewById(R.id.Nickname);
-        logoutButton = (Button)findViewById(R.id.Logout);
-        FriendsButton = (Button)findViewById(R.id.Friends);
-        User =(TextView)findViewById(R.id.Username);
-        Birth =(TextView)findViewById(R.id.Birthday);
+        EditText name = (EditText) findViewById(R.id.Nickname);
+        Button logoutButton = (Button) findViewById(R.id.Logout);
+        TextView user = (TextView) findViewById(R.id.Username);
+        TextView birth = (TextView) findViewById(R.id.Birthd);
 
-        User.setText(" " );
-        Birth.setText(" " );
+        user.setText(" " );
+        birth.setText(" " );
 
 
 
@@ -42,12 +37,12 @@ public class UserProfile extends AppCompatActivity {
             }
         });
 
-        FriendsButton.setOnClickListener(new View.OnClickListener() {
+        /*FriendsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 directedToFriendsList();
             }
-        });
+        });*/
 
     }
 
@@ -58,13 +53,13 @@ public class UserProfile extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void directedToFriendsList(){
+    /*private void directedToFriendsList(){
 
         Intent intent = new Intent(UserProfile.this, FriendsList.class);  // how to go to next thing yayaya
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
 
-    }
+    }*/
 
 
 }

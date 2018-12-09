@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.app.NotificationChannel;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.content.Intent;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -61,9 +63,13 @@ public class HomePage extends AppCompatActivity {
     JSONObject json;
     private HTTPAsyncTask friendsTask;
     private HTTPAsyncTask2 feedTask;
-
-    int[] IMAGES = {R.drawable.ic_launcher_background};     //general population
-    String[] GROUPNAME = {"Group1","Group2"};   //general population to see if it works
+    Handler handler = new Handler();
+    Runnable timedTask = new Runnable(){
+        @Override
+        public void run() {
+            Activate();
+            handler.postDelayed(timedTask, 5000);
+        }};
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -72,7 +78,8 @@ public class HomePage extends AppCompatActivity {
         bundle = getIntent().getExtras();
         userID = bundle.getString("UserID");
 
-        numOfPaint = bundle.getInt("NumOfPaint");///////////////////////////////////////////
+
+        //numOfPaint = bundle.getInt("NumOfPaint");
         setContentView(R.layout.activity_home);
         friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
 //        feedTask = (HTTPAsyncTask2) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
@@ -111,25 +118,20 @@ public class HomePage extends AppCompatActivity {
     public void onResume()
     {  // After a pause OR at startup
         super.onResume();
+        handler.post(timedTask);
         Activate();
         }
 
+    public ArrayList<Image> getImages(){
+        return myFeed;
+        }
+
+
     private void Activate(){
+        /*userID = bundle.getString("UserID");
+        num = bundle.getInt("NumOfPaint");*/
         friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
         feedTask = (HTTPAsyncTask2) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
-
-
-        bundle = getIntent().getExtras();
-        String encoded = bundle.getString("Doodle");
-        int currentPlayerSpot = bundle.getInt("cpSpot");
-        String currentPlayer = bundle.getString("currentPlayer");
-        groupName = bundle.getString("GroupName");
-        ArrayList<String> friendGroup = bundle.getStringArrayList("FriendsList");
-        num = bundle.getInt("NumOfPaint");/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
-        if(encoded != null) {
-            byte[] byteArray = Base64.decode(encoded, Base64.DEFAULT);
-            doodle = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-            }
         }
 
     class CustomAdapter extends BaseAdapter {
@@ -155,8 +157,8 @@ public class HomePage extends AppCompatActivity {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             view = getLayoutInflater().inflate(R.layout.item, viewGroup, false);
-                ImageView imageView = (ImageView) view.findViewById(R.id.Image);
-                TextView textViewGroup = (TextView) view.findViewById(R.id.textViewGroup);
+                ImageView imageView = view.findViewById(R.id.Image);
+                TextView textViewGroup = view.findViewById(R.id.textViewGroup);
                 imageView.setImageBitmap(myFeed.get(i).getBitmap());
                 textViewGroup.setText(myFeed.get(i).getGameName());
 
@@ -165,20 +167,19 @@ public class HomePage extends AppCompatActivity {
         }
 
     }
+
     public void NewDoodle(View V) {
         Intent intent = new Intent(HomePage.this, NewDoodlePage.class);
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
-        myFeed.clear();
         startActivity(intent);
-        }
+    }
 
     public void goToProfile(View V) {
         Intent intent = new Intent(HomePage.this, UserProfile.class);
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
-        myFeed.clear();
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
     }
@@ -187,10 +188,9 @@ public class HomePage extends AppCompatActivity {
         Intent intent = new Intent(HomePage.this, FriendsList.class);
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
-        myFeed.clear();
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
-        }
+    }
 
     public void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
@@ -280,9 +280,27 @@ public class HomePage extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if(!myFeed.isEmpty()) {
-                ListView feed = findViewById(R.id.FeedListView);
+                ListView feed = (ListView) findViewById(R.id.FeedListView);
                 CustomAdapter customAdapter = new CustomAdapter();
                 feed.setAdapter(customAdapter);
+                feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if(myFeed.get(position).getMyTurn()){
+                        bundle.putString("UserID", userID);
+                        bundle.putString("imageString", myFeed.get(position).getImage());
+                        bundle.putInt("cpSpot", myFeed.get(position).getCurrentPlayerSpot());
+                        bundle.putInt("paintingID", myFeed.get(position).getPaintingID());
+                        bundle.putBoolean("newDoodle",false);
+                        Intent intent = new Intent(HomePage.this, Drawing.class);
+                        intent.putExtras(bundle);
+                        myFeed.clear();
+                        startActivity(intent);}
+                        else{
+                            System.out.println("NO");
+                        }
+                    }
+                });
             }
         }
     }
@@ -317,6 +335,8 @@ public class HomePage extends AppCompatActivity {
         ArrayList<String> stringManip1 = new ArrayList<String>(Arrays.asList(replaceS.split("\\}")));
         ArrayList<String> stringManip2;
         Image temp;
+        myFeed.clear();
+
         if(stringManip1.get(0) != "") {
             for (int i = 0; i < stringManip1.size(); i++) {
                 stringManip2 = new ArrayList<String>(Arrays.asList(stringManip1.get(i).split(",")));
@@ -325,11 +345,14 @@ public class HomePage extends AppCompatActivity {
                 temp.setGameName(stringManip2.get(1));
                 temp.setOwnerUserName(stringManip2.get(2));
                 temp.setImage(stringManip2.get(3).replaceAll("\\\\n", ""));
-                System.out.println(temp.getImage());
                 temp.setCurrentPlayerUserName(stringManip2.get(4));
                 temp.setCurrentPlayerSpot(Integer.parseInt(stringManip2.get(5)));
                 temp.setPlayers(null);
-                System.out.println(i);
+                if(userID.equals(stringManip2.get(4))){
+                    temp.setMyTurn(true);
+                    }
+                    else
+                        temp.setMyTurn(false);
                 myFeed.add(temp);
             }
         }

@@ -76,7 +76,9 @@
         <ListView
             android:id="@+id/FeedListView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:scrollbars="vertical" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

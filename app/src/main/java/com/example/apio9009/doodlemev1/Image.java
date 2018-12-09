@@ -15,6 +15,7 @@ public class Image {
     private String currentPlayerUserName;
     private int currentPlayerSpot;
     private ArrayList<String> players;
+    private Boolean myTurn;
 
     public String getCurrentPlayerUserName() {
         return currentPlayerUserName;
@@ -72,9 +73,17 @@ public class Image {
         this.image = image;
     }
 
+    public void setMyTurn(Boolean myTurn) {
+        this.myTurn = myTurn;
+    }
+
+    public Boolean getMyTurn() {
+        return myTurn;
+    }
+
     public Bitmap getBitmap(){
         byte [] encodeByte = Base64.decode(image, Base64.DEFAULT);
-        Bitmap b =BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+        Bitmap b = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
         return b;
     }
 }

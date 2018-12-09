@@ -157,4 +157,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/done" />
 
+    <ImageView
+        android:id="@+id/image3"
+        android:layout_width="match_parent"
+        android:layout_height="617dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="50"
+        app:layout_constraintBottom_toBottomOf="@+id/imageButton14"
+        app:layout_constraintTop_toTopOf="@+id/canvas"
+        app:layout_constraintVertical_bias="1.0" />
+
 </android.support.constraint.ConstraintLayout>

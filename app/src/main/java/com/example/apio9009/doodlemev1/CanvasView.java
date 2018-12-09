@@ -11,17 +11,22 @@ import android.view.View;
 import android.util.AttributeSet;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.widget.ImageView;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.graphics.Color.RED;
 
 
 public class CanvasView extends View {
 
     public int width;
     public int height;
-    private Bitmap mBitmap;
-    private Canvas mCanvas = new Canvas();
+    public Bitmap mBitmap;
+    private Canvas mCanvas;
     private Path mPath;
+    private Drawing drawing;
     private Paint mPaint;
     private float mX, mY;
     private static final float TOLERANCE = 5;
@@ -31,17 +36,17 @@ public class CanvasView extends View {
     public CanvasView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-
         mPath = new Path();
-
+        mCanvas = new Canvas();
         mPaint = new Paint();
+
         mPaint.setAntiAlias(true);
         mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
-        //mPaint.setStrokeWidth(4f);
         mPaint.setStrokeWidth(20f);
 
+        //mPaint.setStrokeWidth(4f);
         //mBitmap = Bitmap.createBitmap(mCanvas.getWidth(), mCanvas.getHeight(), Bitmap.Config.ARGB_8888)
     }
 
@@ -51,22 +56,25 @@ public class CanvasView extends View {
     
     @Override
     protected void onDraw(Canvas canvas) {
-        mCanvas.setBitmap(mBitmap);
+        if(mBitmap != null)
+        canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+        //mCanvas.setBitmap(mBitmap);
         int tempC = mPaint.getColor();
         for (Pair<Path,Integer> path_clr : path_color_list ){
-        mPaint.setColor(path_clr.second);
-        canvas.drawPath( path_clr.first, mPaint);
-        mPaint.setColor(tempC);
-        canvas.drawPath(mPath, mPaint);
+            mPaint.setColor(path_clr.second);
+            canvas.drawPath( path_clr.first, mPaint);
+            mPaint.setColor(tempC);
+            canvas.drawPath(mPath, mPaint);
         }
     }
 
     //not using
     protected void onSizeChanged(int w, int h, int oldw, int oldh){
         super.onSizeChanged(w, h, oldw, oldh);
-
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        mBitmap = Bitmap.createBitmap(w, h, conf);
+        if (mBitmap == null) {
+            mBitmap = Bitmap.createBitmap(w, h, conf);
+        }
         mCanvas.setBitmap(mBitmap);
     }
 
@@ -101,12 +109,19 @@ public class CanvasView extends View {
         return mBitmap;
     }
 
+    public void setDoodle(Bitmap mBitmap) {
+        this.mBitmap = mBitmap;
+    }
+
     public Canvas getCanvas(){
         return mCanvas;
     }
 
-    public void setDoodle(Bitmap image){
-        mCanvas.setBitmap(image);
+    public void setCanvas(Bitmap bMap){
+        Canvas temp = new Canvas(bMap);
+        CanvasView view = this;
+        view.draw(temp);
+        mBitmap = bMap;
     }
 
     private void upTouch(){
