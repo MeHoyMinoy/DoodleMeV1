@@ -39,7 +39,6 @@ public class CanvasView extends View {
         mPath = new Path();
         mCanvas = new Canvas();
         mPaint = new Paint();
-
         mPaint.setAntiAlias(true);
         mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);

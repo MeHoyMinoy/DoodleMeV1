@@ -1,14 +1,24 @@
 package com.example.apio9009.doodlemev1;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -25,6 +35,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -32,10 +43,11 @@ public class Register extends AppCompatActivity {
 
     private EditText username;
     private EditText password;
-    private EditText birthdate;
+    public static EditText birthdate;
     private EditText firstName;
     private EditText lastName;
     private TextView message;
+    public static String bDay;
     InputStream inputStream;
     HttpURLConnection conn;
     private String serverResult;
@@ -53,6 +65,8 @@ public class Register extends AppCompatActivity {
         username = findViewById(R.id.setUsername);
         password = findViewById(R.id.setPass);
         birthdate = findViewById(R.id.setBirth);
+        birthdate.setEnabled(false);
+        birthdate.setKeyListener(null);
         firstName = (EditText) findViewById(R.id.setFirstName);
         lastName = (EditText) findViewById(R.id.setLastName);
         message = (TextView) findViewById(R.id.warning);
@@ -238,5 +252,40 @@ public class Register extends AppCompatActivity {
 
     public void notifyOKCommandReceived() {
         latch.countDown();
+    }
+
+
+
+
+
+
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            DatePickerDialog datepickerdialog = new DatePickerDialog(getActivity(),
+                    AlertDialog.THEME_HOLO_LIGHT,this,year,month,day);
+            return datepickerdialog;
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            // Do something with the date chosen by the user
+            month++;
+            bDay = month+"-"+day+"-"+year;
+            birthdate.setText(bDay);
+        }
+    }
+
+    public void showDatePickerDialog(View v) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
     }
 }

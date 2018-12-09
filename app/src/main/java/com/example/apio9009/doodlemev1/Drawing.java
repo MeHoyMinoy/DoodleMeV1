@@ -1,17 +1,23 @@
 package com.example.apio9009.doodlemev1;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +29,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -43,7 +50,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -71,6 +80,9 @@ public class Drawing extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {                                          //On create function
         super.onCreate(savedInstanceState);
+//        ActivityCompat.requestPermissions(Drawing.this,
+//                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                1);
         //Get the bundle
         bundle = getIntent().getExtras();
         //Extract the data…
@@ -290,6 +302,89 @@ public class Drawing extends AppCompatActivity {
     //END SERVER COMMUNICATION
 
 
+    //SaveImage
+    public void saveTempBitmap(Bitmap bitmap) {
+        if (isExternalStorageWritable()) {
+            saveImage(bitmap);
+        }else{
+            //prompt the user or do something
+        }
+    }
 
+    public void save(View v){
+        cView = findViewById(R.id.canvas);
+        Canvas imageC = canvasView.getCanvas();
+        //cView.draw(imageC);
+        Bitmap image = canvasView.getDoodle();
+        saveImage(image);
+    }
+
+    private void saveImage(Bitmap finalBitmap) {
+        //finalBitmap.eraseColor(Color.WHITE);
+        Bitmap imageWithBG = Bitmap.createBitmap(finalBitmap.getWidth(), finalBitmap.getHeight(),finalBitmap.getConfig());  // Create another image the same size
+        imageWithBG.eraseColor(Color.WHITE);  // set its background to white, or whatever color you want
+        Canvas canvas = new Canvas(imageWithBG);  // create a canvas to draw on the new image
+        canvas.drawBitmap(finalBitmap, 0f, 0f, null); // draw old image on the background
+        finalBitmap.recycle();
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String fname = "DoodleMe"+ timeStamp +".png";
+        MediaStore.Images.Media.insertImage(getContentResolver(), finalBitmap, fname , "Saved image from DoodleMe");
+        /*String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root +"/DoodleMe");
+        System.out.println(myDir);
+        myDir.mkdirs();
+        File file = new File(myDir, fname);
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
+
+//        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+//
+//        MediaScannerConnection.scanFile(this, new String[]{file.toString()}, new String[]{file.getName()}, null);
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    //end save
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case 1: {
+//
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                    // permission was granted, yay! Do the
+//                    // contacts-related task you need to do.
+//                } else {
+//
+//                    // permission denied, boo! Disable the
+//                    // functionality that depends on this permission.
+//                    Toast.makeText(Drawing.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+//                }
+//                return;
+//            }
+//
+//            // other 'case' lines to check for other
+//            // permissions this app might request
+//        }
+//    }
 
 }

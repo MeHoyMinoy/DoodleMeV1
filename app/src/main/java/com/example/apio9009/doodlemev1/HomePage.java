@@ -158,6 +158,10 @@ public class HomePage extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             view = getLayoutInflater().inflate(R.layout.item, viewGroup, false);
                 ImageView imageView = view.findViewById(R.id.Image);
+                ImageView lockView = view.findViewById(R.id.Lock);
+                if(!myFeed.get(i).getMyTurn()){
+                    lockView.setVisibility(View.VISIBLE);
+                }else lockView.setVisibility(View.GONE);
                 TextView textViewGroup = view.findViewById(R.id.textViewGroup);
                 imageView.setImageBitmap(myFeed.get(i).getBitmap());
                 textViewGroup.setText(myFeed.get(i).getGameName());

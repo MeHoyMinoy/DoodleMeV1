@@ -12,18 +12,22 @@ public class UserProfile extends AppCompatActivity {
 
 
     private Button FriendsButton;
+    private Bundle bundle;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        bundle = getIntent().getExtras();
+        userID = bundle.getString("UserID");
         setContentView(R.layout.activity_profile);
 
         EditText name = (EditText) findViewById(R.id.Nickname);
         Button logoutButton = (Button) findViewById(R.id.Logout);
         TextView user = (TextView) findViewById(R.id.Username);
-        TextView birth = (TextView) findViewById(R.id.Birthd);
+        TextView birth = (TextView) findViewById(R.id.birthday);
 
-        user.setText(" " );
+        user.setText(userID);
         birth.setText(" " );
 
 
