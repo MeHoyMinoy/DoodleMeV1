@@ -27,6 +27,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +61,7 @@ public class Drawing extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "DoodleMe";
     private CanvasView canvasView;
+    ImageButton b;
     boolean newDoodle;
     Bundle bundle;
     String stuff;
@@ -69,6 +71,7 @@ public class Drawing extends AppCompatActivity {
     String doodleEnc;
     Bitmap doodle;
     String currentPlayer;
+    int rounds;
     CanvasView cView;
     String encoded;
     int cpSpot = 0;
@@ -94,9 +97,10 @@ public class Drawing extends AppCompatActivity {
         cpSpot = bundle.getInt("cpSpot");
         PaintingID = bundle.getInt("paintingID");
         setContentView(R.layout.activity_drawing);
-        ImageView in = (ImageView) findViewById(R.id.image3);
+        //ImageView in = (ImageView) findViewById(R.id.image3);
 
         canvasView = findViewById(R.id.canvas);
+        b = (ImageButton) findViewById(R.id.imageButton);
         if(!newDoodle){
             byte [] decodeByte = Base64.decode(image, Base64.DEFAULT);
             Bitmap b = BitmapFactory.decodeByteArray(decodeByte, 0, decodeByte.length);
@@ -106,6 +110,8 @@ public class Drawing extends AppCompatActivity {
     }
 
     public void send(View v){
+        b.setOnClickListener(null);
+        //canvasView.findViewById(R.id.imageButton).setVisibility(View.GONE);
         cView = findViewById(R.id.canvas);
         Canvas imageC = canvasView.getCanvas();
         cView.draw(imageC);
@@ -168,15 +174,6 @@ public class Drawing extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
-
-
     //SERVE COMMUNICATION
     private class HTTPAsyncTask extends AsyncTask<String, Void, String> {
         @Override
@@ -197,7 +194,8 @@ public class Drawing extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             //conResult.setText(result);
-            next();
+            //next();
+            finish();
         }
     }
 
@@ -239,12 +237,14 @@ public class Drawing extends AppCompatActivity {
             if(!newDoodle) {
                 doodleJ.put("paintingID", PaintingID);
             }
+
             doodleJ.put("image", encoded);
             doodleJ.put("players", JArray);
             doodleJ.put("gameName", stuff);
             doodleJ.put("currentPlayerUserName", currentPlayer);
             doodleJ.put("currentPlayerSpot", cpSpot);
             doodleJ.put("ownerUserName", userID);
+            doodleJ.put("rounds", bundle.getInt("roundNumber"));
         }catch (JSONException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -291,35 +291,35 @@ public class Drawing extends AppCompatActivity {
         return sb.toString();
     }
 
-    public void next(){
+    /*public void next(){
         Intent intent = new Intent(Drawing.this, HomePage.class);
         bundle.putString("UserID", userID);
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
-    }
+    }*/
 
     //END SERVER COMMUNICATION
 
 
     //SaveImage
-    public void saveTempBitmap(Bitmap bitmap) {
+    /*public void saveTempBitmap(Bitmap bitmap) {
         if (isExternalStorageWritable()) {
             saveImage(bitmap);
         }else{
             //prompt the user or do something
         }
-    }
+    }*/
 
-    public void save(View v){
+    /*public void save(View v){
         cView = findViewById(R.id.canvas);
         Canvas imageC = canvasView.getCanvas();
         //cView.draw(imageC);
         Bitmap image = canvasView.getDoodle();
         saveImage(image);
-    }
+    }*/
 
-    private void saveImage(Bitmap finalBitmap) {
+    /*private void saveImage(Bitmap finalBitmap) {
         //finalBitmap.eraseColor(Color.WHITE);
         Bitmap imageWithBG = Bitmap.createBitmap(finalBitmap.getWidth(), finalBitmap.getHeight(),finalBitmap.getConfig());  // Create another image the same size
         imageWithBG.eraseColor(Color.WHITE);  // set its background to white, or whatever color you want
@@ -329,7 +329,7 @@ public class Drawing extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String fname = "DoodleMe"+ timeStamp +".png";
         MediaStore.Images.Media.insertImage(getContentResolver(), finalBitmap, fname , "Saved image from DoodleMe");
-        /*String root = Environment.getExternalStorageDirectory().toString();
+        *//*String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root +"/DoodleMe");
         System.out.println(myDir);
         myDir.mkdirs();
@@ -342,13 +342,13 @@ public class Drawing extends AppCompatActivity {
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }*//*
 
 
 //        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
 //
 //        MediaScannerConnection.scanFile(this, new String[]{file.toString()}, new String[]{file.getName()}, null);
-    }
+    }*/
 
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {

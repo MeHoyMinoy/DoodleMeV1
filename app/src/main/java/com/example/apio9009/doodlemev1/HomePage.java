@@ -53,6 +53,7 @@ public class HomePage extends AppCompatActivity {
     String groupName;
     Bitmap doodle;
     String userID;
+    String birthday;
     int num;
     int numOfPaint;
     ArrayList<String> myList;
@@ -77,12 +78,13 @@ public class HomePage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         bundle = getIntent().getExtras();
         userID = bundle.getString("UserID");
+        birthday = bundle.getString("Birthdate");
 
 
-        //numOfPaint = bundle.getInt("NumOfPaint");
         setContentView(R.layout.activity_home);
         friendsTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFriendsList?user="+bundle.getString("UserID"));
-//        feedTask = (HTTPAsyncTask2) new HTTPAsyncTask2().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
+
+
 
         /*NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.newdoodle)
@@ -91,26 +93,12 @@ public class HomePage extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         createNotificationChannel();
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
-
-
-        //feedTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/GetFeed?user="+bundle.getString("UserID"));
-
-
         //****************************************************************************************\\
         int notificationId = 1;
         notificationManager.notify(notificationId, mBuilder.build());*/
 
-
-
         //bundle.putStringArrayList("friendsList", friendslist);
 
-        //********************************************************************************************\\
-
-
-        //feed.
-
-        //**************************************************************************************
 
     }
 
@@ -119,7 +107,6 @@ public class HomePage extends AppCompatActivity {
     {  // After a pause OR at startup
         super.onResume();
         handler.post(timedTask);
-        Activate();
         }
 
     public ArrayList<Image> getImages(){
@@ -159,10 +146,11 @@ public class HomePage extends AppCompatActivity {
             view = getLayoutInflater().inflate(R.layout.item, viewGroup, false);
                 ImageView imageView = view.findViewById(R.id.Image);
                 ImageView lockView = view.findViewById(R.id.Lock);
-                if(!myFeed.get(i).getMyTurn()){
+                if(!myFeed.get(i).getMyTurn() || myFeed.get(i).getRounds() == 0){
                     lockView.setVisibility(View.VISIBLE);
                 }else lockView.setVisibility(View.GONE);
                 TextView textViewGroup = view.findViewById(R.id.textViewGroup);
+                System.out.println(myFeed.get(i).getImage());
                 imageView.setImageBitmap(myFeed.get(i).getBitmap());
                 textViewGroup.setText(myFeed.get(i).getGameName());
 
@@ -183,6 +171,7 @@ public class HomePage extends AppCompatActivity {
     public void goToProfile(View V) {
         Intent intent = new Intent(HomePage.this, UserProfile.class);
         bundle.putString("UserID", userID);
+        bundle.putString("Birthdate", birthday);
         intent.putExtras(bundle);
         //intent is used to go from one activity to another like a source and a destination
         startActivity(intent);
@@ -290,12 +279,12 @@ public class HomePage extends AppCompatActivity {
                 feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if(myFeed.get(position).getMyTurn()){
+                        if(myFeed.get(position).getMyTurn() && myFeed.get(position).getRounds() != 0){
                         bundle.putString("UserID", userID);
                         bundle.putString("imageString", myFeed.get(position).getImage());
                         bundle.putInt("cpSpot", myFeed.get(position).getCurrentPlayerSpot());
                         bundle.putInt("paintingID", myFeed.get(position).getPaintingID());
-                        bundle.putBoolean("newDoodle",false);
+                        bundle.putBoolean("newDoodle", false);
                         Intent intent = new Intent(HomePage.this, Drawing.class);
                         intent.putExtras(bundle);
                         myFeed.clear();
@@ -331,6 +320,7 @@ public class HomePage extends AppCompatActivity {
         replaceS = replaceS.replaceAll("\"currentPlayerUserName\":", "");
         replaceS = replaceS.replaceAll("\"currentPlayerSpot\":", "");
         replaceS = replaceS.replaceAll("\"players\":", "");
+        replaceS = replaceS.replaceAll("\"rounds\":", "");
         replaceS = replaceS.replace("\"","");
         replaceS = replaceS.replace("]","");
         replaceS = replaceS.replaceAll("\\},","}");
@@ -352,15 +342,16 @@ public class HomePage extends AppCompatActivity {
                 temp.setCurrentPlayerUserName(stringManip2.get(4));
                 temp.setCurrentPlayerSpot(Integer.parseInt(stringManip2.get(5)));
                 temp.setPlayers(null);
+                temp.setRounds(Integer.parseInt(stringManip2.get(7)));
                 if(userID.equals(stringManip2.get(4))){
                     temp.setMyTurn(true);
                     }
                     else
                         temp.setMyTurn(false);
                 myFeed.add(temp);
+                //System.out.println(temp.getImage());
             }
         }
-
         return "lel";
         }
 

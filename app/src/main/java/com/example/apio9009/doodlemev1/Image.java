@@ -16,6 +16,7 @@ public class Image {
     private int currentPlayerSpot;
     private ArrayList<String> players;
     private Boolean myTurn;
+    private int rounds;
 
     public String getCurrentPlayerUserName() {
         return currentPlayerUserName;
@@ -79,6 +80,14 @@ public class Image {
 
     public Boolean getMyTurn() {
         return myTurn;
+    }
+
+    public int getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(int rounds) {
+        this.rounds = rounds;
     }
 
     public Bitmap getBitmap(){

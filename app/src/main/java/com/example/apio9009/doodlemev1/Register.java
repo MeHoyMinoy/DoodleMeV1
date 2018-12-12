@@ -35,7 +35,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -43,11 +46,12 @@ public class Register extends AppCompatActivity {
 
     private EditText username;
     private EditText password;
-    public static EditText birthdate;
+    public static TextView birthdate;
     private EditText firstName;
     private EditText lastName;
     private TextView message;
     public static String bDay;
+    public static String bDay2;
     InputStream inputStream;
     HttpURLConnection conn;
     private String serverResult;
@@ -98,7 +102,6 @@ public class Register extends AppCompatActivity {
             serverResult = null;
             latch = new CountDownLatch(1);
             mTask = (HTTPAsyncTask) new HTTPAsyncTask().execute("http://10.0.2.2:8080/CreateProfile");
-
         }
 
 
@@ -149,16 +152,18 @@ public class Register extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             //conResult.setText(result);
-            if (serverResult.equals("-1")) {
+            if (serverResult.equalsIgnoreCase("-1")) {
                 message.setText("That username is already taken.");
-            } else if (serverResult.equals("1")) {
+            } else if (serverResult.equalsIgnoreCase("1")) {
                 //create bundle-----------------------------------------------------------------------\\
                 Intent i = new Intent(Register.this, HomePage.class);
                 String[] fList;
                 String userID = username.getText().toString();
+                bundle.putString("Birthdate", (String) birthdate.getText());
                 bundle.putString("UserID", userID);
                 //Add the bundle to the intent
                 i.putExtras(bundle);
+                finish();
                 startActivity(i);
                 //end bundle--------------------------------------------------------------------------//
             }
@@ -191,13 +196,12 @@ public class Register extends AppCompatActivity {
     }
 
     private JSONObject buildJsonObject() throws JSONException {
-
         JSONObject jsonObject = new JSONObject();
         jsonObject.accumulate("userName", username.getText().toString());
         jsonObject.accumulate("password", password.getText().toString());
         jsonObject.accumulate("firstName", firstName.getText().toString());
         jsonObject.accumulate("lastName", lastName.getText().toString());
-        jsonObject.accumulate("birthDate", birthdate.getText().toString());
+        jsonObject.accumulate("birthDate", bDay2);
 
         return jsonObject;
     }
@@ -241,24 +245,6 @@ public class Register extends AppCompatActivity {
 //END SERVER COMMUNICATION
 
 
-    public void waitForResponse() {
-        try {
-            boolean result = latch.await(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        // check result and react correspondingly
-    }
-
-    public void notifyOKCommandReceived() {
-        latch.countDown();
-    }
-
-
-
-
-
-
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 
@@ -278,8 +264,15 @@ public class Register extends AppCompatActivity {
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
             // Do something with the date chosen by the user
-            month++;
-            bDay = month+"-"+day+"-"+year;
+            bDay = month + "-" + day + "-" + year;
+            String newDay = null;
+            if(day < 10) {
+                newDay = "0" + day;
+            }else newDay = day + "";
+
+            if(month>=10) {
+                bDay2 = year + "-" + month + "-" + newDay;
+            }else bDay2 = year + "-0" + month + "-" + newDay;
             birthdate.setText(bDay);
         }
     }

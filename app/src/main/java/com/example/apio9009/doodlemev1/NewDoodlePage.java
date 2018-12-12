@@ -17,9 +17,11 @@ import java.util.List;
 
 public class NewDoodlePage extends AppCompatActivity {
     private EditText groupName;                                                                     //initialize groupName
+    private EditText roundNumber;
     private TextView friendS;                                                                     //initialize friendS
     private TextView fList;                                                                         //initialize fList
     public List<String> gList;                                                                      //initialize gList, this is the list of people in the group
+    int rNumber;
     String userID;
     private ArrayList<String> FriendSearch;
     Bundle bundle = new Bundle();
@@ -33,6 +35,7 @@ public class NewDoodlePage extends AppCompatActivity {
 
         groupName = (EditText) findViewById(R.id.SetGroupName);
         friendS = findViewById(R.id.actv);
+        roundNumber = (EditText) findViewById(R.id.SetRoundNumber);
         fList = findViewById(R.id.groupList);
         gList =  new ArrayList<String>();
         FriendSearch = bundle.getStringArrayList("friendsList");
@@ -49,15 +52,23 @@ public class NewDoodlePage extends AppCompatActivity {
         if(gList.size()>1) {
             Intent i = new Intent(NewDoodlePage.this, Drawing.class);
             String[] fList;
+            TextView sNum = findViewById(R.id.SetRoundNumber);
+            int setNum = Integer.parseInt(sNum.getText().toString());
+            int rNumber = Integer.parseInt(roundNumber.getText().toString());
+            System.out.println(rNumber);
             String gName = groupName.getText().toString();
+
+
             String[] gArrayq = gList.toArray(new String[gList.size()]);
             ArrayList<String> gArray = new ArrayList<String>(Arrays.asList(gArrayq));
             bundle.putInt("NumOfPaint", 1);/////////////////////////////////////////////////////////////////////////////////////////////////////////remove
             bundle.putString("GroupName", gName);
             bundle.putStringArrayList("FriendsList", gArray);
             bundle.putBoolean("newDoodle", true);
+            bundle.putInt("roundNumber", rNumber);
             //Add the bundle to the intent
             i.putExtras(bundle);
+            finish();
             startActivity(i);
         }
     }
